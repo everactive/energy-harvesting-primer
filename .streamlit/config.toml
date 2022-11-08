@@ -1,0 +1,18 @@
+# Everactive Energy Harvesting Primer: Streamlit Config
+
+[server]
+
+# Automatically rerun script when the file is modified on disk.
+runOnSave = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+
+# The preset Streamlit theme that your custom theme inherits from. One of "light" or "dark".
+base = "light"
+
+# Primary/secondary accent colors.
+primaryColor = "#E99C53"
+secondaryBackgroundColor="#CDE1E8"
