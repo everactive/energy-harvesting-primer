@@ -6,6 +6,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+st.sidebar.warning("This documentation is in draft.", icon="⚠️")
 st.sidebar.header(f"A Primer on Energy Harvesting for Everactive Environmental Sensors")
 
 st.header("Fundamentals of Energy Harvesting")
