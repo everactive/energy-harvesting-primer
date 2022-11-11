@@ -1,4 +1,4 @@
-name: app_ci
+name: CI Checks
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   check-pr-version:
-    name: Check PR version bump
+    name: Bump package version
     runs-on: ubuntu-latest
 
     strategy:
