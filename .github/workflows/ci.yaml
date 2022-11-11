@@ -1,0 +1,32 @@
+name: app_ci
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  code-quality:
+    name: Code quality
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+        poetry-version: ["1.2.2"]
+
+    steps:
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Checkout branch
+        uses: actions/checkout@v3
+      - name: Run poetry install
+        run: poetry install
+      - name: Run precommit for code quality checks
+        run: poetry run pre-commit run --all-files -v
