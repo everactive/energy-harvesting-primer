@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "energy-harvesting-primer"
-version = "0.0.2"
+version = "0.1.0"
 description = "Everactive Energy Harvesting Primer"
 authors = ["Rachel House <rachel.house@everactive.com>"]
 
