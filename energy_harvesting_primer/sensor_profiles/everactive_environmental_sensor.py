@@ -8,8 +8,20 @@ class BaseSensorProfile(abc.ABC):
 
     @property
     @abc.abstractclassmethod
+    def manufacturer(self) -> str:
+        """Return string name of manufacturer."""
+        pass
+
+    @property
+    @abc.abstractclassmethod
     def display_name(self) -> str:
         """Return string name of sensor."""
+        pass
+
+    @property
+    @abc.abstractclassmethod
+    def full_display_name(self) -> str:
+        """Return full string name of sensor."""
         pass
 
     @property
@@ -108,8 +120,16 @@ class EveractiveEnvironmentalSensor(BaseSensorProfile):
         ) + (0.5 * self._params["total_cap_on_scap"] * voltage_on_vcap)
 
     @property
+    def manufacturer(self) -> str:
+        return "Everactive"
+
+    @property
     def display_name(self) -> str:
-        return "Everactive Environmental+ Sensor"
+        return "ENV+&nbsp;Eversensor"
+
+    @property
+    def full_display_name(self) -> str:
+        return "Environmental+ (ENV+) Eversensor"
 
     @property
     def article(self) -> str:

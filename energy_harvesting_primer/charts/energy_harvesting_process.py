@@ -3,7 +3,7 @@ import pandas as pd
 
 import energy_harvesting_primer.charts.color as palette
 
-CHART_HEIGHT = 200
+CHART_HEIGHT = 180
 CHART_WIDTH = 600
 
 color = palette.ColorPalette()
@@ -14,12 +14,11 @@ def energy_harvesting_process() -> alt.LayerChart:
     store energy, consume energy and return as an Altair chart."""
 
     block_width = 20
-    block_height = 8
+    block_height = 10
     block_offset = 10
     min_y, max_y = -4, 12
     origin_x, origin_y = 10, 0
     comments_offset_x, comments_offset_y = 1, 1.5
-    edge_offset = 5
     arrow_head_epsilon = 0.8
 
     # Block Meta definition
@@ -94,40 +93,10 @@ def energy_harvesting_process() -> alt.LayerChart:
             "x2": origin_x + block_width * 2 + block_offset * 2,
             "y": (origin_y + origin_y + block_height) / 2,
         },
-        {
-            "x": origin_x - edge_offset,
-            "x2": origin_x,
-            "y": (origin_y + origin_y + block_height) / 2,
-        },
-        {
-            "x": origin_x + block_width * 3 + block_offset * 2,
-            "x2": origin_x + block_width * 3 + block_offset * 2 + edge_offset,
-            "y": (origin_y + origin_y + block_height) / 2,
-        },
-        {
-            "x": origin_x - edge_offset,
-            "x2": origin_x + block_width * 3 + block_offset * 2 + edge_offset,
-            "y": origin_y + block_height * 1.3,
-        },
-    ]
-
-    # Define positioning of all individual vertical lines on the diagram.
-    lines_vertical = [
-        {
-            "x": origin_x - edge_offset,
-            "y": (origin_y + origin_y + block_height) / 2,
-            "y2": origin_y + block_height * 1.3,
-        },
-        {
-            "x": origin_x + block_width * 3 + block_offset * 2 + edge_offset,
-            "y": (origin_y + origin_y + block_height) / 2,
-            "y2": origin_y + block_height * 1.3,
-        },
     ]
 
     # Define positions of triangle marks that serve as arrow heads.
     arrow_heads = [
-        {"x": origin_x - arrow_head_epsilon, "y": origin_y + block_height / 2},
         {
             "x": origin_x + block_width + block_offset - arrow_head_epsilon,
             "y": origin_y + block_height / 2,
@@ -140,7 +109,6 @@ def energy_harvesting_process() -> alt.LayerChart:
 
     df_block_meta = pd.DataFrame(block_meta)
     df_lines_horizontal = pd.DataFrame(lines_horizontal)
-    df_lines_vertical = pd.DataFrame(lines_vertical)
     df_arrows = pd.DataFrame(arrow_heads)
 
     # Add mouseover selection to capture cursor x position.
@@ -165,6 +133,7 @@ def energy_harvesting_process() -> alt.LayerChart:
                 alt.value(color.chartreuse()),
                 alt.value(color.chartreuse(50)),
             ),
+            tooltip=alt.value(None),
         )
     )
 
@@ -197,12 +166,6 @@ def energy_harvesting_process() -> alt.LayerChart:
         .encode(x=alt.X("x"), x2="x2", y=alt.Y("y"))
     )
 
-    vertical_lines = (
-        alt.Chart(df_lines_vertical)
-        .mark_line()
-        .encode(x=alt.X("x"), y=alt.Y("y"), y2="y2")
-    )
-
     arrows = (
         alt.Chart(df_arrows)
         .mark_point(
@@ -221,7 +184,6 @@ def energy_harvesting_process() -> alt.LayerChart:
             block_labels,
             block_comments,
             horizontal_lines,
-            vertical_lines,
             arrows,
         )
         .add_selection(nearest)

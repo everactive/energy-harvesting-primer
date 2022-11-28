@@ -104,6 +104,7 @@ def environment_lux_outside() -> alt.LayerChart:
 
     chart = (
         alt.layer(lux_points, lux_labels)
+        .encode(tooltip=alt.value(None))
         .configure_view(strokeWidth=0)
         .properties(height=180, width=CHART_WIDTH)
     )
@@ -272,7 +273,7 @@ def environment_lux_inside() -> alt.LayerChart:
     )
 
     lux_labels = base.mark_text(align="center", baseline="middle").encode(
-        x="display_x", text="display_name"
+        x="display_x", text="display_name", tooltip=alt.value(None)
     )
 
     chart = (

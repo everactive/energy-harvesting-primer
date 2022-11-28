@@ -165,6 +165,7 @@ def power_profile() -> alt.LayerChart:
             x_axis_arrow_label,
             y_axis_arrow_label,
         )
+        .encode(tooltip=alt.value(None))
         .configure_axis(grid=False)
         .configure_view(strokeWidth=0)
         .properties(height=CHART_HEIGHT, width=CHART_WIDTH)

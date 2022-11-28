@@ -1,4 +1,5 @@
 import collections
+import re
 
 import pandas as pd
 import streamlit as st
@@ -6,31 +7,15 @@ import streamlit as st
 import energy_harvesting_primer as eh
 
 IMAGE_DIR = "static/images"
+ST_LINE_BREAK = "  \n"
 
 ## Page Config ##########################################################
 st.set_page_config(
-    page_title="Everactive Energy Harvesting Primer",
+    page_title="Everactive: Energy Harvesting Systems 101",
     page_icon="⚡️",
     initial_sidebar_state="expanded",
 )
 
-## Sidebar ##########################################################
-st.sidebar.image(f"{IMAGE_DIR}/everactive_logo.png")
-st.sidebar.title(f"Energy Harvesting 101")
-
-sidebar_links = [
-    {"title": "Fundamentals of Energy Harvesting", "image": "▶︎"},
-    {"title": "A Simple Energy Usage Model", "image": "▶︎"},
-    {"title": "Energy Harvesting Scenarios", "image": "▶︎"},
-    {"title": "Environment Profiles for Harvestable Energy", "image": "▶︎"},
-    {"title": "The Eversensor vs. Conventional Batteries", "image": "▶︎"},
-]
-
-for link in sidebar_links:
-    sidebar_col1, sidebar_col2 = st.sidebar.columns([0.5, 8])
-    sidebar_col1.write(link["image"])
-    page_link = link["title"].lower().replace(".", "").replace(" ", "-")
-    sidebar_col2.markdown(f"[{link['title']}](#{page_link})")
 
 ## App Variables ####################################################
 sensor_profile = eh.sensor_profiles.EveractiveEnvironmentalSensor()
@@ -47,17 +32,103 @@ run_duty_cycle_every = collections.OrderedDict(
     }
 )
 
-## Fundamentals of Energy Harvesting ################################
-st.error("This draft documentation, currently under review.", icon="🚨")
+## Sidebar ##########################################################
+st.sidebar.image(f"{IMAGE_DIR}/everactive_logo.png")
+st.sidebar.title(f"Energy Harvesting Systems 101")
 
-st.header("Fundamentals of Energy Harvesting")
+sidebar_links = [
+    {
+        "title": f"The Everactive Environmental+ Batteryless IoT Evaluation Kit",
+        "level": "I",
+    },
+    {"title": "Fundamentals of Energy Harvesting Sensors", "level": "II"},
+    {"title": "Environment Profiles for Harvestable Energy", "level": "III"},
+    {"title": "A Simple Energy Usage Model", "level": "IV"},
+    {"title": "Energy Harvesting Scenarios", "level": "V"},
+    {"title": f"Energy Harvesting vs. Conventional Batteries", "level": "VI"},
+]
+
+for idx, link in enumerate(sidebar_links):
+    sidebar_col1, sidebar_col2, _ = st.sidebar.columns([1, 10, 1])
+    sidebar_col1.markdown(f"**{link['level']}**")
+
+    page_link = re.sub(r"[\.\+]", "", link["title"].lower()).replace(" ", "-")
+    sidebar_col2.markdown(f"{ST_LINE_BREAK}[{link['title']}](#{page_link})")
+
+
+## The ENV+ Environmental Sensor ################################
+st.header(f"The Everactive Environmental+ Batteryless IoT Evaluation Kit")
 
 st.markdown(
-    f"""{sensor_profile.article.capitalize()} {sensor_profile.display_name} is a
-**self-powered** sensor that takes temperature measurements, relative humidity
-measurements, and shock/drop readings. The {sensor_profile.display_name} harvests energy
-from the surrounding environment, stores the harvested energy locally on a capacitor,
-and then consumes the stored harvested energy to take measurements."""
+    f"""[**The Everactive Environmental+ Batteryless IoT Evaluation Kit**](https://everactive.com/self-powered-iot-developers/)
+(EvalKit) is a new offering from Everactive that enables hardware and software
+developers to learn how to design robust, self-powered IoT products without the
+constraints of batteries. Our EvalKits, powered by {sensor_profile.manufacturer}
+{sensor_profile.full_display_name} nodes, offer the following capabilities:"""
+)
+
+tech_spec_column_ratio = [1, 5]
+icon_dir = f"{IMAGE_DIR}/icons"
+
+col1, col2 = st.columns(tech_spec_column_ratio)
+col1.image(f"{icon_dir}/photovoltaic_icon.png")
+
+col2.markdown(
+    f"""**Photovoltaic Energy Harvesting**{ST_LINE_BREAK}The
+{sensor_profile.display_name} node uses an AM1454 solar cell to harvest energy by converting
+available light into electricity."""
+)
+
+col1, col2 = st.columns(tech_spec_column_ratio)
+col1.image(f"{icon_dir}/environmental_sensing_icon.png")
+col2.markdown(
+    f"""**Environmental Sensing**{ST_LINE_BREAK}The {sensor_profile.display_name} node
+uses a BME280 environmental sensor to measure temperature, humidity, and barometric
+pressure. It also uses an ultra-low power accelerometer, the ADXL362, to measure
+acceleration along three axes."""
+)
+
+col1, col2 = st.columns(tech_spec_column_ratio)
+col1.image(f"{icon_dir}/energy_storage_icon.png")
+
+col2.markdown(
+    f"""**Energy Storage**{ST_LINE_BREAK}The {sensor_profile.display_name} node
+has an operating capacitance of 2.5mF and 800mF of storage capacitance. The sensor
+node's operating capacitance is supported by a bank of 100uF low&#8209;leakage ceramic
+capacitors, and its storage capacitance is supported by a CAP&#8209;XX&nbsp;HA130F
+supercapacitor."""
+)
+
+st.markdown(
+    f"""When the {sensor_profile.display_name} takes an environmental reading, it
+transmits the reading as a data packet to the Mini Evergateway, which then uses the
+virtual gateway running on the developer's computer to send the reading to the
+Everactive cloud. The reading data is then accessible via the Everactive Developer
+Console, the Everactive API, or a webhook connection."""
+)
+
+st.image(f"{IMAGE_DIR}/everactive_evalkit_data_flow.png")
+
+st.markdown("")
+st.markdown(
+    f"""In this energy harvesting primer, we'll use the {sensor_profile.manufacturer}
+{sensor_profile.display_name} as an example to explore the fundamentals of energy
+harvesting systems and energy harvesting sensor nodes, as well as their advantages over
+conventional battery-powered approaches. Within this primer, we'll refer to the
+{sensor_profile.display_name} node (and sensor nodes generally) as a "sensor.\""""
+)
+
+## Fundamentals of Energy Harvesting ################################
+st.markdown("---")
+st.header("Fundamentals of Energy Harvesting Sensors")
+
+st.markdown(
+    f"""{sensor_profile.article.capitalize()} {sensor_profile.manufacturer}
+{sensor_profile.display_name} is a **self-powered** sensor that takes temperature
+measurements, relative humidity measurements, and shock/drop readings. The
+{sensor_profile.display_name} harvests energy from the surrounding environment, stores
+the harvested energy locally on a capacitor, and then consumes the stored harvested
+energy to take measurements."""
 )
 
 energy_harvesting_process_chart = eh.charts.energy_harvesting_process()
@@ -122,6 +193,70 @@ Either way, the end result is the same. Runtime is finite because the sensor wil
 eventually run out of energy in its bank account."""
 )
 
+
+## Harvesting Energy from the Environment ###########################
+st.markdown("---")
+st.header("Environment Profiles for Harvestable Energy")
+
+st.markdown(
+    f"""A key consideration when using the {sensor_profile.display_name} as part of an
+energy harvesting approach is the profile of the environment in which it will be
+deployed. The most critical environment profile characteristic is the level of ambient
+light available. Without sufficient light, the sensor is not able to harvest enough
+energy to achieve infinite runtime. To gauge sensor performance and viable duty-cycle
+rates in a given environment, we this need to examine the available ambient light of the
+environmental setting."""
+)
+
+st.markdown(
+    """In outdoor settings, there is substantial ambient light, but this is not
+sustained overnight."""
+)
+st.markdown("")
+
+outdoor_lux_chart = eh.charts.environment_lux_outside()
+st.altair_chart(outdoor_lux_chart)
+
+st.markdown(
+    f"""In indoor settings, available ambient light is reduced, but with targeted
+placement, the {sensor_profile.display_name} can harvest enough energy to power infinite
+runtimes for varying duty-cycles."""
+)
+
+st.markdown(
+    """The most reliable way to determine the intensity of ambient light in a given
+position is to use a dedicated light meter. The human eye is not a reliable judge of the
+intensity of ambient light, particularly in dimmer ranges (e.g. 50 - 300 lux) where a
+difference of tens of lux may significantly impact sensor runtime. Although light meter
+smartphone apps exist, their accuracy does not approach that of dedicated light meters,
+particularly when taking readings in low light conditions. Further, there are a variety
+of factors that affect the intensity of light that a PV cell can detect in a given
+position, including: the distance from a light source, the type of light source, and the
+position of the light source relative to the PV cell. Though indoor office settings will
+generally provide the range of lux of required for duty-cycle rates highlighted in this
+primer, the positioning of individual sensors will be unique to the specifics of the
+indoor space and its contents."""
+)
+
+
+st.markdown("")
+
+indoor_lux_chart = eh.charts.environment_lux_inside()
+st.altair_chart(indoor_lux_chart)
+
+
+st.markdown(
+    """For successful and sustained energy harvesting, it is paramount to consider the
+environment and position in which the sensor is placed, and how the ambient light of the
+setting varies over time. Except for indoor settings with 24/7 artificial-only lighting,
+the available light will change depending on the time of day, time of year, and the
+weather. Continued sensor operation becomes a question of whether the environment
+profile supports the sensor harvesting and storing enough energy during well-lit periods
+such that it can run in the absence of light until light is restored, for example,
+overnight."""
+)
+
+
 ## A Simple Energy Model ############################################
 st.markdown("---")
 st.header("A Simple Energy Usage Model")
@@ -142,8 +277,8 @@ st.altair_chart(power_profile_chart)
 
 
 st.markdown(
-    f"""To generate simplified energy usage model for the {sensor_profile.display_name},
-we only need to define a few properties of our system:"""
+    f"""To generate simplified energy usage model for the {sensor_profile.manufacturer}
+{sensor_profile.display_name}, we only need to define a few properties of our system:"""
 )
 
 col1, col2 = st.columns(2)
@@ -203,8 +338,8 @@ st.header("Energy Harvesting Scenarios")
 
 st.markdown(
     f"""We can apply the simplified energy usage model to two scenarios and explore the
-impact of energy harvesting on the {sensor_profile.display_name} runtime for different
-duty-cycle rates."""
+impact of energy harvesting on the {sensor_profile.manufacturer}
+{sensor_profile.display_name} runtime for different duty-cycle rates."""
 )
 
 st.subheader("No Energy Harvesting: Equivalent to Battery")
@@ -262,70 +397,15 @@ runtime_variable_lux_chart = eh.charts.runtime_variable_lux(
 st.altair_chart(runtime_variable_lux_chart)
 
 
-## Harvesting Energy from the Environment ###########################
-st.markdown("---")
-st.header("Environment Profiles for Harvestable Energy")
-
-st.markdown(
-    f"""Available light enables the {sensor_profile.display_name} to harvest energy from
-the environment to perform sensor operations, like taking temperature measurements,
-relative humidity measurements, and shock/drop readings. As we saw above, a relatively
-low ambient light (200 lux) enables the sensor to reach infinite runtime for duty-cycle
-rates as frequent as thirty seconds."""
-)
-
-st.markdown(
-    f"""A key consideration when using the {sensor_profile.display_name} as part of an
-energy harvesting approach is the profile of the environment in which it will be
-deployed. The most critical environment profile characteristic is the level of ambient
-light available. Without sufficient light, the sensor is not able to harvest enough
-energy to achieve infinite runtime. To gauge sensor performance and viable duty-cycle
-rates in a given environment, we this need to examine the available ambient light of the
-environmental setting."""
-)
-
-st.markdown(
-    """In outdoor settings, there is substantial ambient light, but this is not
-sustained overnight."""
-)
-st.markdown("")
-
-outdoor_lux_chart = eh.charts.environment_lux_outside()
-st.altair_chart(outdoor_lux_chart)
-
-st.markdown(
-    f"""In indoor settings, available ambient light is reduced, but with targeted
-placement, the {sensor_profile.display_name} can harvest enough energy to power infinite
-runtimes for varying duty-cycles."""
-)
-
-st.markdown("")
-
-indoor_lux_chart = eh.charts.environment_lux_inside()
-st.altair_chart(indoor_lux_chart)
-
-
-st.markdown(
-    """For successful and sustained energy harvesting, it is paramount to consider the
-environment and position in which the sensor is placed, and how the ambient light of the
-setting varies over time. Except for indoor settings with 24/7 artificial lighting, the
-available light will change depending on the time of day, time of year, and the weather.
-Continued sensor operation becomes a question of whether the environment profile
-supports the sensor harvesting and storing enough energy during well-lit periods such
-that it can run in the absence of light until light is restored - for example,
-overnight."""
-)
-
-
 ## Energy Harvesting vs. Conventional Batteries #####################
 st.markdown("---")
-st.header("The Eversensor vs. Conventional Batteries")
+st.header("Energy Harvesting vs. Conventional Batteries")
 
 st.markdown(
-    f"""As shown above, the {sensor_profile.display_name} has a short, finite
-runtime in the absence of harvestable energy. As a thought experiment, let us explore
-the hypothetical runtime of the {sensor_profile.display_name} if it were powered by
-a conventional commercial battery."""
+    f"""As shown above, the {sensor_profile.manufacturer} {sensor_profile.display_name}
+has a short, finite runtime in the absence of harvestable energy. As a thought
+experiment, let us explore the hypothetical runtime of the {sensor_profile.display_name}
+if it were powered by a conventional commercial battery."""
 )
 
 st.markdown(

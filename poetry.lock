@@ -924,7 +924,7 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
 name = "streamlit"
-version = "1.14.0"
+version = "1.15.0"
 description = "The fastest way to build data apps in Python"
 category = "main"
 optional = false
@@ -1110,7 +1110,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.9.7 || >3.9.7,<4.0"
-content-hash = "66ab1caabd0e3b107f9401a926aed86362f57c79873b4d53faa1bd0fa30f57fc"
+content-hash = "252c4db87e8a6977c3b9b4390f928b82f239a11bb23f4d287532bfb0ed643ce7"
 
 [metadata.files]
 altair = [
@@ -1869,8 +1869,8 @@ stack-data = [
     {file = "stack_data-0.6.0.tar.gz", hash = "sha256:8e515439f818efaa251036af72d89e4026e2b03993f3453c000b200fb4f2d6aa"},
 ]
 streamlit = [
-    {file = "streamlit-1.14.0-py2.py3-none-any.whl", hash = "sha256:e078b8143d150ba721bdb9194218e311c5fe1d6d4156473a2dea6cc848a6c9fc"},
-    {file = "streamlit-1.14.0.tar.gz", hash = "sha256:62556d873567e1b3427bcd118a57ee6946619f363bd6bba38df2d1f8225ecba0"},
+    {file = "streamlit-1.15.0-py2.py3-none-any.whl", hash = "sha256:42d06bdc835607008169bf85ce6bf3ae31a3c155470bc342113f70b5155e55b7"},
+    {file = "streamlit-1.15.0.tar.gz", hash = "sha256:7738a0050fdde8226635b443a488895d5223fe5f6524575586fb1faf835ed1b6"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},

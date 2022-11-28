@@ -116,12 +116,12 @@ def runtime_no_harvestable_energy(
 
     chart = (
         alt.hconcat(
-            alt.layer(runtime_chart, runtime_labels).properties(
-                width=CHART_WIDTH, height=CHART_HEIGHT
-            ),
-            alt.layer(
-                measurements_chart, measurements_points, measurements_labels
-            ).properties(width=CHART_WIDTH, height=CHART_HEIGHT),
+            alt.layer(runtime_chart, runtime_labels)
+            .encode(tooltip=alt.value(None))
+            .properties(width=CHART_WIDTH, height=CHART_HEIGHT),
+            alt.layer(measurements_chart, measurements_points, measurements_labels)
+            .encode(tooltip=alt.value(None))
+            .properties(width=CHART_WIDTH, height=CHART_HEIGHT),
         )
         .configure_view(strokeWidth=0)
         .configure_title(anchor="start", fontSize=14)
