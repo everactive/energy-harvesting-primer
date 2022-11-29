@@ -18,7 +18,7 @@ st.set_page_config(
 
 
 ## App Variables ####################################################
-sensor_profile = eh.sensor_profiles.EveractiveEnvironmentalSensor()
+sensor_profile = eh.sensor_profiles.EveractiveEnvironmentalPlusEversensor()
 
 run_duty_cycle_every = collections.OrderedDict(
     {
@@ -123,30 +123,58 @@ st.markdown("---")
 st.header("Fundamentals of Energy Harvesting Sensors")
 
 st.markdown(
-    f"""{sensor_profile.article.capitalize()} {sensor_profile.manufacturer}
-{sensor_profile.display_name} is a **self-powered** sensor that takes temperature
-measurements, relative humidity measurements, and shock/drop readings. The
-{sensor_profile.display_name} harvests energy from the surrounding environment, stores
-the harvested energy locally on a capacitor, and then consumes the stored harvested
-energy to take measurements."""
+    """**Energy** is the capacity to do work. In the context of a sensor, **work** is
+performing operations, such as: taking a measurement (reading), making a calculation, or
+transmitting data. When a sensor does work, it consumes energy. **Power** is the rate at
+which energy is produced or consumed; it is energy per unit of time. Energy harvesting
+sensors harvest energy from the surrounding environment, store that energy locally, and
+then consume the stored energy in order to perform work."""
 )
 
 energy_harvesting_process_chart = eh.charts.energy_harvesting_process()
 st.altair_chart(energy_harvesting_process_chart)
 
 st.markdown(
-    """Unlike sensors without energy harvesting, self-powered sensors have an infinite
-lifetime because harvested energy can bring the sensor to life at any time. Sensor
-runtime, however, depends on the environment in which the sensor operates."""
+    """A sensor exists in one of two states: **available**, in which it has sufficient
+energy to perform work, or **unavailable**, in which it does not have sufficient energy
+to perform work. The **runtime** of a sensor is the remaining time until an available
+sensor becomes unavailable, and the **lifetime** of a sensor is the time period over
+which a sensor can become available and perform work."""
+)
+st.markdown("")
+
+col1, col2 = st.columns([1, 1])
+col1.markdown("**Energy Source: Harvesting**")
+col1.markdown(
+    """* variable availability
+* infinite lifetime
+* lifetime = *n* runtimes"""
+)
+
+col2.markdown("**Energy Source: Battery**")
+col2.markdown(
+    """* continuous availability
+* finite lifetime
+* lifetime = runtime"""
+)
+
+st.markdown("")
+st.markdown(
+    """Energy harvesting sensors have an infinite lifetime (given the presence of
+harvestable energy) because harvested energy can transition a sensor from unavailable to
+available at any time. The current runtime of an energy harvesting sensor, and its
+availability over its lifetime, depends on the environment in which the sensor
+operates."""
 )
 
 st.markdown(
-    """To illustrate the different energy harvesting scenarios, and how they affect
-sensor runtime, consider the analogy of a bank account. The energy stored on a sensor
-serves as its "bank account."  When the sensor performs an operation, like taking a
-measurement, it withdraws energy from that bank account, and the account balance
-available for further operations decreases. When the sensor harvests energy, it deposits
-energy into its bank account, and the available balance increases."""
+    """To illustrate the different energy harvesting scenarios, and how each affects
+sensor availability, runtime, and lifetime, consider the analogy of a bank account. The
+energy stored on a sensor serves as its "bank account."  When a sensor performs work,
+like taking a measurement or transmitting a data packet, it withdraws energy from that
+bank account, and the account balance available for further operations decreases. When a
+sensor harvests energy, it deposits energy into its bank account, and the available
+balance increases."""
 )
 
 column_sizes = [1, 12]
@@ -158,39 +186,45 @@ col_3_1, col_3_2 = st.columns(column_sizes)
 col_1_1.subheader(1)
 col_1_2.markdown(
     """**Plentiful energy harvesting**. In this scenario, there is ample energy for
-the sensor to harvest, and its bank account is overflowing. Energy deposits far exceed
-withdrawals, and the sensor is able to "spend" (perform operations) without
-budgeting how frequently it processes data or how much data it processes. Sensor runtime
-is infinite in an environment with plentiful energy harvesting."""
+a sensor to harvest, and its bank account is overflowing. Energy deposits far exceed
+withdrawals, and a sensor is able to "spend" (perform work) without budgeting how
+frequently it works or how much energy it consumes while working. In an environment with
+plentiful energy harvesting, sensor availability is continuous, sensor runtime is
+infinite, and sensor lifetime is infinite."""
 )
 
 col_2_1.subheader(2)
 col_2_2.markdown(
-    """**Constrained energy harvesting**. In this scenario, the sensor is able to
-harvest energy, but a limited or constrained amount of energy. An energy-constrained
-sensor operates with a bank account where it can make both withdrawals and deposits,
-albeit modest deposits. If the sensor "lives within its means" and limits how frequently
-and how much data it processes, it can save up energy in its bank account over a period
-of time. That saved energy can then be used to continue "paying the bills" (taking
-measurements) in the absence of regular deposits of energy, so that the bank account
-never drops to zero. In this situation, the lifetime of the sensor is infinite. If its
-bank account does drop to zero, then the sensor is able to wait until the next deposit,
-and can then use that energy to recharge and continue operations."""
+    """**Limited energy harvesting**. In this scenario, a sensor is able to harvest
+energy, but a limited amount of energy. It operates with a bank account where it can
+make both withdrawals and deposits, albeit modest deposits. If a sensor "lives within
+its means" and limits how frequently it works and how much energy it consumes when
+working, it can save up energy in its bank account over a period of time. That saved
+energy can then be used to continue "paying the bills" (performing work) in the absence
+of regular deposits of energy, so that the bank account never drops to zero. A sensor in
+this scenario is *power-constrained*; it must be conservative with the rate at which it
+uses its energy.
+
+In this situation, the lifetime of a sensor is infinite, though its availability and
+length of runtimes will vary based on the level of harvestable energy. If its bank
+account does drop to zero, an energy harvesting sensor is able to wait until the next
+deposit, and can then use that energy to transition to available and resume work."""
 )
 
 col_3_1.subheader(3)
 col_3_2.markdown(
-    """**No energy harvesting**. In this scenario, the sensor isn’t able to harvest
-any energy from the surrounding environment, and this renders the sensor equivalent to a
-conventional battery-powered sensor with a finite runtime. A battery-powered sensor can
-only make withdrawals from its bank account, leaving two options to increase sensor
-runtime:
+    """**No energy harvesting**. In this scenario, a sensor is not able to harvest any
+energy from the surrounding environment; it is *energy-constrained*, and can only make
+withdrawals from its bank account. Sensor runtime and lifetime are both finite. Once
+the sensor depletes its energy bank account, it becomes unavailable and remains in that
+state due to lack of further deposits of harvested energy.
 
-* decrease how frequently the sensor makes withdrawals by decreasing how often it acquires, processes, and transmits data, or
-* decrease how much energy the sensor withdraws for each operation by decreasing how much data it processes.
+When energy-constrained, a sensor has two options to increase its runtime:
+* Decrease the frequency of its energy withdrawals by reducing how often it performs work
+* Decrease how much energy it withdraws for each that operation it performs
 
-Either way, the end result is the same. Runtime is finite because the sensor will
-eventually run out of energy in its bank account."""
+However, runtime is ultimately finite because the sensor will eventually run out of
+energy in its bank account."""
 )
 
 
@@ -199,18 +233,27 @@ st.markdown("---")
 st.header("Environment Profiles for Harvestable Energy")
 
 st.markdown(
-    f"""A key consideration when using the {sensor_profile.display_name} as part of an
-energy harvesting approach is the profile of the environment in which it will be
-deployed. The most critical environment profile characteristic is the level of ambient
-light available. Without sufficient light, the sensor is not able to harvest enough
-energy to achieve infinite runtime. To gauge sensor performance and viable duty-cycle
-rates in a given environment, we this need to examine the available ambient light of the
-environmental setting."""
+    """A energy harvesting sensor is able to harvest energy from its surrounding
+environment by converting the target energy type (for instance, ambient solar or thermal
+energy) into electrical energy that is stored locally on the sensor. A key design
+consideration when using an energy harvesting sensor is thus the profile of the
+environment in which the sensor is deployed."""
 )
 
 st.markdown(
-    """In outdoor settings, there is substantial ambient light, but this is not
-sustained overnight."""
+    f"""The {sensor_profile.manufacturer} {sensor_profile.display_name} uses a solar
+cell, also known as a photovoltaic (PV) cell, to harvest energy from the environment by
+converting available light into electricity. The most critical environment profile
+characteristic for a PV cell-enabled sensor is the level of intensity of the available
+ambient light, which is measured in lux. The environment lux level determines whether a
+sensor operates in a plentiful, limited, or no energy harvesting scenario and has a
+direct impact on sensor availability and runtime."""
+)
+
+st.markdown(
+    """In outdoor settings, environment lux levels are driven by ambient solar light,
+and vary widely depending on the time of day and the weather. The chart below depicts
+typical lux levels across a range of outdoor conditions."""
 )
 st.markdown("")
 
@@ -218,44 +261,40 @@ outdoor_lux_chart = eh.charts.environment_lux_outside()
 st.altair_chart(outdoor_lux_chart)
 
 st.markdown(
-    f"""In indoor settings, available ambient light is reduced, but with targeted
-placement, the {sensor_profile.display_name} can harvest enough energy to power infinite
-runtimes for varying duty-cycles."""
+    f"""In indoor settings$^{1}$, environmental lux levels are driven primarily by ambient
+artificial lighting, but can also be influenced by the presence of ambient solar light.
+The chart below depicts characteristic lux ranges across a variety of indoor spaces."""
 )
-
-st.markdown(
-    """The most reliable way to determine the intensity of ambient light in a given
-position is to use a dedicated light meter. The human eye is not a reliable judge of the
-intensity of ambient light, particularly in dimmer ranges (e.g. 50 - 300 lux) where a
-difference of tens of lux may significantly impact sensor runtime. Although light meter
-smartphone apps exist, their accuracy does not approach that of dedicated light meters,
-particularly when taking readings in low light conditions. Further, there are a variety
-of factors that affect the intensity of light that a PV cell can detect in a given
-position, including: the distance from a light source, the type of light source, and the
-position of the light source relative to the PV cell. Though indoor office settings will
-generally provide the range of lux of required for duty-cycle rates highlighted in this
-primer, the positioning of individual sensors will be unique to the specifics of the
-indoor space and its contents."""
-)
-
 
 st.markdown("")
 
 indoor_lux_chart = eh.charts.environment_lux_inside()
 st.altair_chart(indoor_lux_chart)
 
-
 st.markdown(
-    """For successful and sustained energy harvesting, it is paramount to consider the
-environment and position in which the sensor is placed, and how the ambient light of the
-setting varies over time. Except for indoor settings with 24/7 artificial-only lighting,
-the available light will change depending on the time of day, time of year, and the
-weather. Continued sensor operation becomes a question of whether the environment
-profile supports the sensor harvesting and storing enough energy during well-lit periods
-such that it can run in the absence of light until light is restored, for example,
-overnight."""
+    """The most reliable way to determine the intensity of ambient light in a given
+environment is to use a dedicated light meter. The human eye is not a reliable judge of
+the intensity of ambient light, particularly in dimmer ranges where a difference of tens
+of lux may significantly impact energy harvesting sensor availability and runtime.
+Although light meter smartphone apps exist, their accuracy does not approach that of
+dedicated light meters, particularly when taking readings in low light conditions.
+Further, there are a variety of factors that affect the intensity of light that a PV
+cell can detect in a given environment and position within the environment, including:
+the distance from a light source, the type of light source, and the position of the
+light source relative to the PV cell."""
 )
 
+st.markdown(
+    f"""For sustained energy harvesting sensor availability, it is paramount to consider
+the environment lux level, the position in which a sensor is placed within the
+environment, and how the ambient light of the environment varies over time. Except for
+indoor settings with continuous, artificial-only lighting, environment ambient light
+will change depending on a variety of factors: for instance, the time of day, time of
+year, the weather, or variable obstruction of a light source. Acceptable sensor
+availability becomes a question of whether the environment profile supports the sensor
+harvesting and storing enough energy during well-lit periods such that it can run in the
+absence of light until light is restored, for example, overnight."""
+)
 
 ## A Simple Energy Model ############################################
 st.markdown("---")
@@ -355,9 +394,10 @@ runtime no longer improves."""
 )
 
 st.markdown(
-    f"""The chart below depicts the expected runtime and measurements$^{1}$ of a {sensor_profile.display_name}
-for different duty-cycle rates in the absence of harvestable energy, assuming that the
-sensor is fully charged before beginning operation."""
+    f"""The chart below depicts the expected runtime and measurements$^{2}$ of a
+{sensor_profile.display_name} for different duty-cycle rates in the absence of
+harvestable energy, assuming that the sensor is fully charged before beginning
+operation."""
 )
 st.markdown("")
 
@@ -383,10 +423,12 @@ st.markdown(
 frequent duty-cycle rates."""
 )
 
+lux_slider_increments = [50, 100, 105, 110, 115, 125, 150, 200, 300]
 df_lux_values = pd.DataFrame(
-    [{"display_value": f"{x} lux", "lux": x} for x in range(50, 301, 5)]
+    [{"display_value": f"{x} lux", "lux": x} for x in lux_slider_increments]
 )
-selected_lux = st.select_slider("Ambient Light", df_lux_values)
+
+selected_lux = st.select_slider("Ambient Light", df_lux_values, value="100 lux")
 harvestable_lux = df_lux_values[df_lux_values["display_value"] == selected_lux].iloc[0][
     "lux"
 ]
@@ -510,4 +552,5 @@ st.altair_chart(battery_maintenance_burden_chart)
 ## Footnotes ########################################################
 st.markdown("---")
 
-st.caption("""$^{1}$ Sensor performance was measured at room temperature.""")
+st.caption("$^{1}$" f"The {sensor_profile.display_name} is rated for indoor use.")
+st.caption("""$^{2}$ Sensor performance was measured at room temperature.""")

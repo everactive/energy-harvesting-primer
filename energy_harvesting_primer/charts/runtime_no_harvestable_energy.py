@@ -78,7 +78,7 @@ def runtime_no_harvestable_energy(
         alt.Y(
             "runtime_hour",
             axis=alt.Axis(title="Runtime (Hours)", grid=False),
-            scale=alt.Scale(domain=[0, 12]),
+            scale=alt.Scale(domain=[0, 22]),
         ),
     )
 

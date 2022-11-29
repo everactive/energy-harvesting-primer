@@ -26,11 +26,12 @@ def runtime_variable_lux(
 
     continuous = [{"continuous": "continuous"}]
     seconds = [{f"{x} seconds": x} for x in [15, 30]]
-    minutes = [{f"{x} minutes": x * 60} for x in range(1, 21, 1)]
+    minute = [{"1 minute": 60}]
+    minutes = [{f"{x} minutes": x * 60} for x in range(2, 21, 1)]
 
     duty_cycle_seconds_to_name = []
 
-    for x in [*continuous, *seconds, *minutes]:
+    for x in [*continuous, *seconds, *minute, *minutes]:
         duty_cycle_name = list(x.keys())[0]
         duty_cycle_seconds_to_name.append(
             {
@@ -64,13 +65,27 @@ def runtime_variable_lux(
         range=[color.chartreuse(), color.sand()],
     )
 
+    tick_label_expr = """
+        datum.label == 'continuous' ? 'continuous'
+        : datum.label == '15 seconds' ? '15 seconds'
+        : datum.label == '30 seconds' ? '30 seconds'
+        : datum.label == '1 minute' ? '1 minute'
+        : datum.label == '5 minutes' ? '5 minutes'
+        : datum.label == '10 minutes' ? '10 minutes'
+        : datum.label == '15 minutes' ? '15 minutes'
+        : datum.label == '20 minutes' ? '20 minutes'
+        : ''
+    """
+
     chart = (
         alt.Chart(df)
         .mark_rect()
         .encode(
             alt.X(
                 "duty_cycle_name",
-                axis=alt.Axis(title="Duty-Cycle", labelAngle=-45),
+                axis=alt.Axis(
+                    title="Duty-Cycle", labelAngle=-35, labelExpr=tick_label_expr
+                ),
                 sort=duty_cycle_sort_order,
             ),
             alt.Y("y", axis=None),

@@ -78,10 +78,11 @@ def calculate_battery_runtimes(
     df_batteries["stored_energy_joules"] = df_batteries.apply(
         lambda row: row["capacity_Ah"] * row["voltage"] * 3600, axis=1
     )
+
     df_batteries["runtime_s"] = df_batteries.apply(
         lambda row: get_runtime_seconds(
             row["stored_energy_joules"],
-            sensor_profile.get_average_load_power(
+            sensor_profile.get_average_load_power_for_battery(
                 row["duty_cycle"],
             ),
             0,

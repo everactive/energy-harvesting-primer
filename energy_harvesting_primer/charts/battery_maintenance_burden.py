@@ -6,6 +6,8 @@ import energy_harvesting_primer.charts.color as palette
 CHART_HEIGHT = 300
 CHART_WIDTH = 700
 
+# Based on upper limit of supplied minutes per replacement (9 min).
+MAX_MAINTENANCE_DAYS = 60
 
 color = palette.ColorPalette()
 
@@ -47,7 +49,7 @@ def battery_maintenance_burden(mins_per_replacement: int) -> alt.Chart:
     df_maintenance = pd.DataFrame(maintenance)
 
     heatmap_color_scale = alt.Scale(
-        domain=[0, max(df_maintenance["days"])],
+        domain=[0, MAX_MAINTENANCE_DAYS],
         range=[color.apricot(), color.midnight()],
     )
 
@@ -73,7 +75,9 @@ def battery_maintenance_burden(mins_per_replacement: int) -> alt.Chart:
             alt.Color(
                 "days:Q",
                 scale=heatmap_color_scale,
-                legend=alt.Legend(title="Days to Replace Batteries"),
+                legend=alt.Legend(
+                    title=["Days (24hr) Required", "to Replace Batteries"]
+                ),
             ),
             tooltip=[
                 alt.Tooltip("fleet_size", title="Fleet Size"),

@@ -2,6 +2,8 @@ import abc
 import os
 from typing import Dict
 
+SECONDS_IN_MIN = 60
+
 
 class BaseSensorProfile(abc.ABC):
     """Base class representing a sensor."""
@@ -79,8 +81,8 @@ class BaseSensorProfile(abc.ABC):
         pass
 
 
-class EveractiveEnvironmentalSensor(BaseSensorProfile):
-    """Class representing an Everactive Environmental Sensor."""
+class EveractiveEnvironmentalPlusEversensor(BaseSensorProfile):
+    """Class representing an Everactive Environmental+ Eversensor."""
 
     def __init__(self):
         self._params = {}
@@ -95,10 +97,9 @@ class EveractiveEnvironmentalSensor(BaseSensorProfile):
             "total_cap_on_vcap": "EHP_TOTAL_CAP_ON_VCAP",
             "total_cap_on_scap": "EHP_TOTAL_CAP_ON_SCAP",
             "avg_power_during_idle": "EHP_AVG_POWER_DURING_IDLE",
-            "avg_power_during_active": "EHP_AVG_POWER_DURING_ACTIVE",
+            "avg_power_during_1min_sampling": "EHP_AVG_POWER_DURING_1MIN_SAMPLING",
             "operation_active_time": "EHP_OPERATION_ACTIVE_TIME",
-            "idle_efficiency": "EHP_IDLE_EFFICIENCY",
-            "active_efficiency": "EHP_ACTIVE_EFFICIENCY",
+            "efficiency_pin_vin": "EHP_EFFICIENCY_PINVIN",
         }
 
         for characteristic, characteristic_environ in sensor_characteristics.items():
@@ -162,21 +163,31 @@ class EveractiveEnvironmentalSensor(BaseSensorProfile):
             Average power load, in microwatts
         """
 
-        duty_cycle_active_ratio = self.operation_active_time / duty_cycle_period
-
         # Idle & active power are in W, convert to uW.
         average_load_power = (
-            self.idle_power
-            / self._params["idle_efficiency"]
-            * 100
-            * (1 - duty_cycle_active_ratio)
-            + self.active_power
-            / self._params["active_efficiency"]
-            * 100
-            * duty_cycle_active_ratio
+            (
+                (self._params["avg_power_during_1min_sampling"] * SECONDS_IN_MIN)
+                + (duty_cycle_period - SECONDS_IN_MIN)
+                * self._params["avg_power_during_idle"]
+            )
+            / duty_cycle_period
         ) * 1_000_000
 
         return average_load_power
+
+    def get_average_load_power_for_battery(self, duty_cycle_period: int) -> float:
+        """Return average load power, in microwatts (uW), based on duty cycle, for a
+        sensor theoretically operating off battery instead of energy harvesting.
+
+        Args:
+            duty_cycle_period: Duty-cycle rate period, in seconds
+
+        Return:
+            Average power load, in microwatts, for a theoretical battery-powered sensor
+        """
+        return self._params["efficiency_pin_vin"] * self.get_average_load_power(
+            duty_cycle_period
+        )
 
     @property
     def _duty_cycle_period_to_required_lux(self) -> Dict:
