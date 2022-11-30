@@ -126,7 +126,7 @@ class EveractiveEnvironmentalPlusEversensor(BaseSensorProfile):
 
     @property
     def display_name(self) -> str:
-        return "ENV+&nbsp;Eversensor"
+        return "ENV+ Eversensor"
 
     @property
     def full_display_name(self) -> str:
