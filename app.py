@@ -43,16 +43,16 @@ sidebar_links = [
     },
     {"title": "Fundamentals of Energy Harvesting Sensors", "level": "II"},
     {"title": "Environment Profiles for Harvestable Energy", "level": "III"},
-    {"title": "A Simple Energy Usage Model", "level": "IV"},
-    {"title": "Energy Harvesting Scenarios", "level": "V"},
-    {"title": f"Energy Harvesting vs. Conventional Batteries", "level": "VI"},
+    {"title": "Energy Harvesting Sensor Power Usage", "level": "IV"},
+    {"title": "ENV+ Eversensor: Energy Harvesting Scenarios", "level": "V"},
+    {"title": "Energy Harvesting vs. Conventional Batteries", "level": "VI"},
 ]
 
 for idx, link in enumerate(sidebar_links):
     sidebar_col1, sidebar_col2, _ = st.sidebar.columns([1, 10, 1])
     sidebar_col1.markdown(f"**{link['level']}**")
 
-    page_link = re.sub(r"[\.\+]", "", link["title"].lower()).replace(" ", "-")
+    page_link = re.sub(r"[\.\+\:]", "", link["title"].lower()).replace(" ", "-")
     sidebar_col2.markdown(f"{ST_LINE_BREAK}[{link['title']}](#{page_link})")
 
 
@@ -298,26 +298,91 @@ absence of light until light is restored, for example, overnight."""
 
 ## A Simple Energy Model ############################################
 st.markdown("---")
-st.header("A Simple Energy Usage Model")
-st.markdown("""""")
+st.header("Energy Harvesting Sensor Power Usage")
+
+st.subheader("""Power Usage and Mode of Operation""")
 
 st.markdown(
-    """The typical sensor use case has two modes of operation: **active** and **idle**.
-In idle mode, the sensor waits in a low power mode for the next event (e.g. sampling,
-processing, transmitting data) to start. Once the next event begins, the sensor exits
-idle mode and enters active mode. During active mode, the sensor performs its work and
-consumes a higher average power than in idle mode. When the active operation is
-completed, the sensor returns to idle mode. The power profile is depicted below.
-"""
+    f"""An available sensor consumes energy to perform work. The sensor power is the the
+rate at which the sensor consumes energy, calculated as the energy consumption over time."""
+)
+
+st.latex(r"""P = \dfrac{E}{t}""")
+
+st.markdown(
+    """Sensor work comprises different operations, for example: taking a measurement,
+transmitting a data packet, running inference using a TinyML model, or receiving an
+over-the-air update. These operations all require differing amounts of energy to
+complete. When completed over the same period of time, sensor operations requiring a
+higher energy consumption will use more power, and operations requiring a lower energy
+consumption will use less power."""
+)
+
+st.markdown(
+    f"""The **mode of operation** of a sensor is defined by the operations that the
+sensor performs while in that mode. The average power usage of a mode is defined by the
+power required for each of its constituent operations. For instance, a sensor that takes
+environmental readings, transmits those readings, and receives over-the-air updates
+might use the following modes:"""
+)
+st.markdown("")
+
+col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+
+col1.markdown("**Measurement Mode**")
+col1.markdown("`medium power`")
+col1.markdown(
+    """* take reading
+* store reading"""
+)
+
+col2.markdown("**Transmit Mode**")
+col2.markdown("`medium power`")
+col2.markdown("* transmit reading data packet")
+
+col3.markdown("**Update Mode**")
+col3.markdown("`high power`")
+col3.markdown(
+    """* download update
+* install update"""
+)
+
+col4.markdown("**Standby Mode**")
+col4.markdown("`low power`")
+col4.markdown(
+    """* listen for wakeup signal
+* receive instruction for next event"""
+)
+
+st.markdown("")
+st.markdown(
+    """Sensor power usage changes as a sensor transitions between different modes of
+operation."""
+)
+
+st.subheader("""A Simple Sensor Power Usage Model""")
+
+st.markdown(
+    f"""To define a simplified power usage model for an energy harvesting sensor,
+consider a theoretical sensor with two modes: **active** and **idle**. In its active
+mode, the sensor takes and transmits a reading (both high power operations), and in its
+idle mode, the sensor listens for the request to take its next reading (a low power
+operation). Assume that the request signal is generated at a consistent frequency.
+
+In idle mode, the sensor waits to receive a request, consuming minimal power. Once the
+request for a reading arrives, the sensor exits idle mode and enters active mode. While
+in active mode, the sensor takes and transmits a reading, consuming a higher average
+power than when in idle mode. When the active operations are completed, the sensor
+returns to idle mode and low power usage. These transitions are illustrated in the chart
+below."""
 )
 
 power_profile_chart = eh.charts.power_profile()
 st.altair_chart(power_profile_chart)
 
-
 st.markdown(
-    f"""To generate simplified energy usage model for the {sensor_profile.manufacturer}
-{sensor_profile.display_name}, we only need to define a few properties of our system:"""
+    f"""A simplified model can be used to calculate sensor runtime if the following
+properties of the system are defined:"""
 )
 
 col1, col2 = st.columns(2)
@@ -328,7 +393,7 @@ col1.markdown(
 )
 col2.markdown("**Sensor Load**")
 col2.markdown(
-    """* modes of operation (e.g. idle/standby, sampling, transmission)
+    """* modes of operation (e.g. active, idle)
 * amount of power consumed in each mode of operation
 * period of time spent in each mode of operation
 """
@@ -373,12 +438,13 @@ the sensor."""
 
 ## No Energy Harvesting #############################################
 st.markdown("---")
-st.header("Energy Harvesting Scenarios")
+st.header(f"{sensor_profile.display_name}: Energy Harvesting Scenarios")
 
 st.markdown(
-    f"""We can apply the simplified energy usage model to two scenarios and explore the
-impact of energy harvesting on the {sensor_profile.manufacturer}
-{sensor_profile.display_name} runtime for different duty-cycle rates."""
+    f"""Building upon the fundamentals of energy harvesting, environmental light
+considerations, and a simplified power usage model for energy harvesting sensors, we
+can now explore the impact of energy harvesting on the {sensor_profile.manufacturer}
+{sensor_profile.display_name} runtime at different duty-cycles."""
 )
 
 st.subheader("No Energy Harvesting: Equivalent to Battery")
