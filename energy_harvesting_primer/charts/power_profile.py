@@ -1,174 +1,144 @@
+from typing import Tuple
+
 import altair as alt
 import pandas as pd
 
 import energy_harvesting_primer.charts.color as palette
+import energy_harvesting_primer.utils as utils
 
-CHART_HEIGHT = 300
+CHART_HEIGHT = 250
 CHART_WIDTH = 700
 
 color = palette.ColorPalette()
 
+MAX_TIME_MINUTES = 30
+MAX_TIME_SECONDS = 60 * MAX_TIME_MINUTES
+MAX_POWER = 80
 
-def power_profile() -> alt.LayerChart:
-    """Generate a diagram of a simple sensor power profile that depicts sensor
-    active/idle mode & duty-cycle rate and return as an Altair chart."""
 
-    idle_height = 2
-    active_height = 10
-    arrow_color = "black"
-    arrow_size = 40
-    arrow_epsilon = 0.4
-    max_y = 13
-    max_x = 34
+def power_profile(
+    idle_power: int,
+    active_power: int,
+    active_operation_seconds: int,
+    active_operation_frequency: int,
+) -> Tuple[alt.LayerChart, float, float]:
+    """Generate chart depicting the power profile for a sensor with two modes: active
+    and idle.
 
-    bars = [
-        {"x": 0, "x2": 3, "state": "Idle"},
-        {"x": 3, "x2": 8, "state": "Active"},
-        {"x": 8, "x2": 18, "state": "Idle"},
-        {"x": 18, "x2": 23, "state": "Active"},
-        {"x": 23, "x2": 33, "state": "Idle"},
-    ]
+    Args:
+        idle_power: power used in idle mode (in microwatts)
+        active_power: power used in active mode (in microwatts)
 
-    df_bars = pd.DataFrame(bars)
-    df_bars["y"] = 0
-    df_bars["y2"] = df_bars["state"].apply(
-        lambda x: idle_height if x == "Idle" else active_height
-    )
+    Returns:
+        Tuple of:
+            power profile chart, as altair LayerChart
+            duty cycle, as float
+            average power load, as float
+    """
+    t_active = active_operation_seconds
+    t_idle = active_operation_frequency - active_operation_seconds
+    duty_cycle = t_active / (t_active + t_idle)
+    average_load_power = active_power * duty_cycle + idle_power * (1 - duty_cycle)
 
-    arrows = [
-        {
-            "x": 3 + arrow_epsilon,
-            "x2": 18 - arrow_epsilon,
-            "y": 11,
-            "label_x": 10.5,
-            "label": "duty-cycle rate",
-        },
-        {
-            "x": 3 + arrow_epsilon,
-            "x2": 8 - arrow_epsilon,
-            "y": -1.5,
-            "label_x": 5.5,
-            "label": "t active",
-        },
-        {
-            "x": 8 + arrow_epsilon,
-            "x2": 18 - arrow_epsilon,
-            "y": -1.5,
-            "label_x": 13,
-            "label": "t idle",
-        },
-    ]
+    is_active = []
+    for event in range(0, int(MAX_TIME_SECONDS / active_operation_frequency) + 1):
+        event_t = event * active_operation_frequency
+        is_active.extend([event_t + t for t in range(0, active_operation_seconds)])
 
-    df_arrows = pd.DataFrame(arrows)
+    data = []
+    for t in range(0, MAX_TIME_SECONDS):
+        power = active_power if t in is_active else idle_power
+        data.append({"t": t, "power": power, "mode": "Sensor Power"})
 
-    df_y_axis = pd.DataFrame([{"x": 0, "y": 0, "y2": max_y}])
-    df_x_axis = pd.DataFrame([{"x": 0, "x2": max_x, "y": 0}])
+    df = pd.DataFrame(data)
+    df["t_min"] = df["t"] / 60
 
-    df_axis_labels = pd.DataFrame(
-        [
-            {"x": -1, "y": idle_height, "label": "P idle"},
-            {"x": 0, "y": idle_height, "label": "—"},
-            {"x": -1, "y": active_height, "label": "P active"},
-            {"x": 0, "y": active_height, "label": "—"},
-            {"x": -1, "y": max_y, "label": "power"},
-            {"x": max_x, "y": -1, "label": "time"},
-        ]
-    )
+    min_tick_labels = """
+        datum.label == '30' ? '...'
+        : datum.label
+    """
 
-    bars = (
-        alt.Chart(df_bars)
-        .mark_bar(opacity=0.8)
+    legend_orientation = "right"
+
+    base_chart = (
+        alt.Chart(df)
+        .mark_area(line=True)
         .encode(
-            x=alt.X("x", axis=None),
-            x2="x2",
-            y=alt.Y("y", axis=None),
-            y2="y2",
-            color=alt.Color(
-                "state",
-                scale=alt.Scale(
-                    domain=["Active", "Idle"],
-                    range=[color.chartreuse(), color.dark_teal()],
+            alt.X(
+                "t_min",
+                axis=alt.Axis(
+                    title="Time (min)",
+                    labelExpr=min_tick_labels,
                 ),
-                legend=alt.Legend(title="Mode of Operation"),
+                scale=alt.Scale(domain=[0, MAX_TIME_MINUTES]),
+            ),
+            alt.Y(
+                "power",
+                axis=alt.Axis(
+                    title="Power Usage",
+                    titlePadding=12,
+                    labelExpr=f'datum.value + " {utils.MU}W"',
+                ),
+                scale=alt.Scale(domain=[0, MAX_POWER]),
+            ),
+            color=alt.Color(
+                "mode",
+                legend=alt.Legend(title="Power Usage", orient=legend_orientation),
+                scale=alt.Scale(
+                    domain=["Sensor Power"],
+                    range=[color.chartreuse()],
+                ),
             ),
         )
     )
 
-    arrow_lines = (
-        alt.Chart(df_arrows)
-        .mark_line()
+    avg_power_load_line = (
+        alt.Chart(
+            pd.DataFrame({"y": [average_load_power], "mode": "Average Load Power"})
+        )
+        .mark_rule(strokeDash=[3, 1], strokeWidth=1)
         .encode(
-            x=alt.X("x"),
-            x2="x2",
-            y=alt.Y("y"),
+            y="y",
+            color=alt.Color(
+                "mode",
+                legend=alt.Legend(title=None, orient=legend_orientation),
+                scale=alt.Scale(
+                    domain=["Average Load Power"],
+                    range=[color.charcoal()],
+                ),
+            ),
         )
     )
 
-    arrow_points_left = arrow_lines.mark_point(
-        shape="triangle",
-        size=arrow_size,
-        angle=270,
-        fill=arrow_color,
-        color=arrow_color,
-    ).encode(alt.X("x"), alt.Y("y"))
-
-    arrow_points_right = arrow_lines.mark_point(
-        shape="triangle", size=arrow_size, angle=90, fill=arrow_color, color=arrow_color
-    ).encode(alt.X("x2"), alt.Y("y"))
-
-    arrow_text = arrow_lines.mark_text(align="center", dy=-10).encode(
-        alt.X("label_x"), text="label"
+    df_text = pd.DataFrame(
+        [
+            {
+                "x": (active_operation_seconds + 5) / 60,
+                "y": idle_power,
+                "label": "- P idle",
+            },
+            {
+                "x": (active_operation_seconds + 5) / 60,
+                "y": active_power,
+                "label": "- P active",
+            },
+        ]
     )
 
-    y_axis = alt.Chart(df_y_axis).mark_line().encode(x="x", y="y", y2="y2")
-    x_axis = alt.Chart(df_x_axis).mark_line().encode(x="x", x2="x2", y="y")
-
-    axis_labels = (
-        alt.Chart(df_axis_labels)
-        .mark_text(align="right")
-        .encode(alt.X("x"), alt.Y("y"), text="label")
-    )
-
-    x_axis_arrow_label = (
-        alt.Chart(pd.DataFrame([{"x": max_x, "y": 0}]))
-        .mark_point(
-            shape="triangle",
-            size=arrow_size,
-            angle=90,
-            fill=arrow_color,
-            color=arrow_color,
+    text_annotations = (
+        alt.Chart(df_text)
+        .mark_text(align="left")
+        .encode(
+            alt.X("x", scale=alt.Scale(domain=[0, MAX_TIME_MINUTES])),
+            alt.Y("y", scale=alt.Scale(domain=[0, MAX_POWER])),
+            text="label",
         )
-        .encode(alt.X("x"), alt.Y("y"))
-    )
-
-    y_axis_arrow_label = (
-        alt.Chart(pd.DataFrame([{"x": 0, "y": max_y}]))
-        .mark_point(
-            shape="triangle",
-            size=arrow_size,
-            fill=arrow_color,
-            color=arrow_color,
-        )
-        .encode(alt.X("x"), alt.Y("y"))
     )
 
     chart = (
-        alt.layer(
-            bars,
-            arrow_lines,
-            arrow_points_left,
-            arrow_points_right,
-            arrow_text,
-            y_axis,
-            x_axis,
-            axis_labels,
-            x_axis_arrow_label,
-            y_axis_arrow_label,
-        )
-        .encode(tooltip=alt.value(None))
-        .configure_axis(grid=False)
-        .configure_view(strokeWidth=0)
+        alt.layer(base_chart, avg_power_load_line, text_annotations)
+        .resolve_scale(color="independent")
         .properties(height=CHART_HEIGHT, width=CHART_WIDTH)
     )
 
-    return chart
+    return chart, duty_cycle, average_load_power

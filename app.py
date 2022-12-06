@@ -11,7 +11,7 @@ ST_LINE_BREAK = "  \n"
 
 ## Page Config ##########################################################
 st.set_page_config(
-    page_title="Everactive: Energy Harvesting Systems 101",
+    page_title="Everactive: Energy Harvesting Sensors 101",
     page_icon="⚡️",
     initial_sidebar_state="expanded",
 )
@@ -34,89 +34,70 @@ run_duty_cycle_every = collections.OrderedDict(
 
 ## Sidebar ##########################################################
 st.sidebar.image(f"{IMAGE_DIR}/everactive_logo.png")
-st.sidebar.title(f"Energy Harvesting Systems 101")
+st.sidebar.title(f"Energy Harvesting Sensors 101")
 
 sidebar_links = [
     {
-        "title": f"The Everactive Environmental+ Batteryless IoT Evaluation Kit",
+        "title": "Introduction",
         "level": "I",
+        "page_link": "energy-harvesting-sensors-101",
     },
     {"title": "Fundamentals of Energy Harvesting Sensors", "level": "II"},
-    {"title": "Environment Profiles for Harvestable Energy", "level": "III"},
-    {"title": "Energy Harvesting Sensor Power Usage", "level": "IV"},
-    {"title": "ENV+ Eversensor: Energy Harvesting Scenarios", "level": "V"},
-    {"title": "Energy Harvesting vs. Conventional Batteries", "level": "VI"},
+    {"title": "Environment Profiles for Energy Harvesting", "level": "III"},
+    {"title": "Energy Harvesting Sensor Power Management", "level": "IV"},
+    {
+        "title": f"The Everactive Environmental+ Batteryless IoT Evaluation Kit",
+        "level": "V",
+    },
+    {"title": "ENV+ Eversensor: Energy Harvesting Scenarios", "level": "VI"},
+    {"title": "Continue the Exploration", "level": "VII"},
 ]
 
 for idx, link in enumerate(sidebar_links):
     sidebar_col1, sidebar_col2, _ = st.sidebar.columns([1, 10, 1])
     sidebar_col1.markdown(f"**{link['level']}**")
 
-    page_link = re.sub(r"[\.\+\:]", "", link["title"].lower()).replace(" ", "-")
+    if link.get("page_link"):
+        page_link = link["page_link"]
+    else:
+        page_link = re.sub(r"[\.\+\:]", "", link["title"].lower()).replace(" ", "-")
+
     sidebar_col2.markdown(f"{ST_LINE_BREAK}[{link['title']}](#{page_link})")
 
 
-## The ENV+ Environmental Sensor ################################
-st.header(f"The Everactive Environmental+ Batteryless IoT Evaluation Kit")
+## Introduction #####################################################
+st.caption(
+    "⚡️ This primer is interactive: explore energy harvesting through chart mouseover, clicks, and controls. ⚡️"
+)
+
+st.header("Energy Harvesting Sensors 101")
 
 st.markdown(
-    f"""[**The Everactive Environmental+ Batteryless IoT Evaluation Kit**](https://everactive.com/self-powered-iot-developers/)
-(EvalKit) is a new offering from Everactive that enables hardware and software
-developers to learn how to design robust, self-powered IoT products without the
-constraints of batteries. Our EvalKits, powered by {sensor_profile.manufacturer}
-{sensor_profile.full_display_name} nodes, offer the following capabilities:"""
-)
+    """Welcome to Everactive's Energy Harvesting Sensors 101. In this primer, we'll
+explore:
+* the fundamentals of energy harvesting sensor nodes,
+* environmental conditions that affect energy harvesting,
+* and power usage within energy harvesting sensor nodes.
 
-tech_spec_column_ratio = [1, 5]
-icon_dir = f"{IMAGE_DIR}/icons"
-
-col1, col2 = st.columns(tech_spec_column_ratio)
-col1.image(f"{icon_dir}/photovoltaic_icon.png")
-
-col2.markdown(
-    f"""**Photovoltaic Energy Harvesting**{ST_LINE_BREAK}The
-{sensor_profile.display_name} node uses an AM1454 solar cell to harvest energy by converting
-available light into electricity."""
-)
-
-col1, col2 = st.columns(tech_spec_column_ratio)
-col1.image(f"{icon_dir}/environmental_sensing_icon.png")
-col2.markdown(
-    f"""**Environmental Sensing**{ST_LINE_BREAK}The {sensor_profile.display_name} node
-uses a BME280 environmental sensor to measure temperature, humidity, and barometric
-pressure. It also uses an ultra-low power accelerometer, the ADXL362, to measure
-acceleration along three axes."""
-)
-
-col1, col2 = st.columns(tech_spec_column_ratio)
-col1.image(f"{icon_dir}/energy_storage_icon.png")
-
-col2.markdown(
-    f"""**Energy Storage**{ST_LINE_BREAK}The {sensor_profile.display_name} node
-has an operating capacitance of 2.5mF and 800mF of storage capacitance. The sensor
-node's operating capacitance is supported by a bank of 100uF low&#8209;leakage ceramic
-capacitors, and its storage capacitance is supported by a CAP&#8209;XX&nbsp;HA130F
-supercapacitor."""
+You will gain intuition on how energy harvesting sensor nodes operate in the real world,
+along with an appreciation of the tradeoffs that come in to play when designing and using
+these types of systems."""
 )
 
 st.markdown(
-    f"""When the {sensor_profile.display_name} takes an environmental reading, it
-transmits the reading as a data packet to the Mini Evergateway, which then uses the
-virtual gateway running on the developer's computer to send the reading to the
-Everactive cloud. The reading data is then accessible via the Everactive Developer
-Console, the Everactive API, or a webhook connection."""
+    f"""We will also showcase the [{sensor_profile.manufacturer}
+{sensor_profile.display_name}](#the-everactive-environmental-batteryless-iot-evaluation-kit)
+as an example of a real-world energy harvesting sensor node."""
 )
 
-st.image(f"{IMAGE_DIR}/everactive_evalkit_data_flow.png")
-
-st.markdown("")
-st.markdown(
-    f"""In this energy harvesting primer, we'll use the {sensor_profile.manufacturer}
-{sensor_profile.display_name} as an example to explore the fundamentals of energy
-harvesting systems and energy harvesting sensor nodes, as well as their advantages over
-conventional battery-powered approaches. Within this primer, we'll refer to the
-{sensor_profile.display_name} node (and sensor nodes generally) as a "sensor.\""""
+st.info(
+    """Note that within this primer, we will refer to energy harvesting sensor nodes as
+*energy harvesting sensors* or *sensors* for simplicity. The focus of our exploration
+is the system of the node and how it uses harvested energy, rather than simply the
+mechanics of the harvesting itself.""",
+    icon="ℹ",
 )
+
 
 ## Fundamentals of Energy Harvesting ################################
 st.markdown("---")
@@ -127,8 +108,9 @@ st.markdown(
 performing operations, such as: taking a measurement (reading), making a calculation, or
 transmitting data. When a sensor does work, it consumes energy. **Power** is the rate at
 which energy is produced or consumed; it is energy per unit of time. Energy harvesting
-sensors harvest energy from the surrounding environment, store that energy locally, and
-then consume the stored energy in order to perform work."""
+sensors harvest energy from the surrounding environment, and either directly consume
+that energy in order to perform work, or store the energy locally to consume it at a
+later time."""
 )
 
 energy_harvesting_process_chart = eh.charts.energy_harvesting_process()
@@ -168,11 +150,11 @@ operates."""
 )
 
 st.markdown(
-    """To illustrate the different energy harvesting scenarios, and how each affects
-sensor availability, runtime, and lifetime, consider the analogy of a bank account. The
-energy stored on a sensor serves as its "bank account."  When a sensor performs work,
-like taking a measurement or transmitting a data packet, it withdraws energy from that
-bank account, and the account balance available for further operations decreases. When a
+    """To illustrate the different energy harvesting zones, and how each affects sensor
+availability, runtime, and lifetime, consider the analogy of a bank account. The energy
+stored on a sensor serves as its "bank account."  When a sensor performs work, like
+taking a measurement or transmitting a data packet, it withdraws energy from that bank
+account, and the account balance available for further operations decreases. When a
 sensor harvests energy, it deposits energy into its bank account, and the available
 balance increases."""
 )
@@ -185,25 +167,24 @@ col_3_1, col_3_2 = st.columns(column_sizes)
 
 col_1_1.subheader(1)
 col_1_2.markdown(
-    """**Plentiful energy harvesting**. In this scenario, there is ample energy for
-a sensor to harvest, and its bank account is overflowing. Energy deposits far exceed
-withdrawals, and a sensor is able to "spend" (perform work) without budgeting how
-frequently it works or how much energy it consumes while working. In an environment with
-plentiful energy harvesting, sensor availability is continuous, sensor runtime is
-infinite, and sensor lifetime is infinite."""
+    """**Plentiful energy harvesting**. In this zone, there is ample energy for a sensor
+to harvest, and its bank account is overflowing. Energy deposits far exceed withdrawals,
+and a sensor is able to "spend" (perform work) without budgeting how frequently it works
+or how much energy it consumes while working. In an environment with plentiful energy
+harvesting, sensor availability is continuous, sensor runtime is infinite, and sensor
+lifetime is infinite."""
 )
 
 col_2_1.subheader(2)
 col_2_2.markdown(
-    """**Limited energy harvesting**. In this scenario, a sensor is able to harvest
-energy, but a limited amount of energy. It operates with a bank account where it can
-make both withdrawals and deposits, albeit modest deposits. If a sensor "lives within
-its means" and limits how frequently it works and how much energy it consumes when
-working, it can save up energy in its bank account over a period of time. That saved
-energy can then be used to continue "paying the bills" (performing work) in the absence
-of regular deposits of energy, so that the bank account never drops to zero. A sensor in
-this scenario is *power-constrained*; it must be conservative with the rate at which it
-uses its energy.
+    """**Limited energy harvesting**. In this zone, a sensor is able to harvest energy,
+but a limited amount of energy. It operates with a bank account where it can make both
+withdrawals and deposits, albeit modest deposits. If a sensor "lives within its means"
+and limits how frequently it works and how much energy it consumes when working, it can
+save up energy in its bank account over a period of time. That saved energy can then be
+used to continue "paying the bills" (performing work) in the absence of regular deposits
+of energy, so that the bank account never drops to zero. A sensor in this zone is
+*power-constrained*; it must be conservative with the rate at which it uses its energy.
 
 In this situation, the lifetime of a sensor is infinite, though its availability and
 length of runtimes will vary based on the level of harvestable energy. If its bank
@@ -213,13 +194,13 @@ deposit, and can then use that energy to transition to available and resume work
 
 col_3_1.subheader(3)
 col_3_2.markdown(
-    """**No energy harvesting**. In this scenario, a sensor is not able to harvest any
+    """**No energy harvesting**. In this zone, a sensor is not able to harvest any
 energy from the surrounding environment; it is *energy-constrained*, and can only make
 withdrawals from its bank account. Sensor runtime and lifetime are both finite. Once
 the sensor depletes its energy bank account, it becomes unavailable and remains in that
 state due to lack of further deposits of harvested energy.
 
-When energy-constrained, a sensor has two options to increase its runtime:
+When energy-constrained, a sensor has two options to increase its remaining runtime:
 * Decrease the frequency of its energy withdrawals by reducing how often it performs work
 * Decrease how much energy it withdraws for each that operation it performs
 
@@ -228,9 +209,9 @@ energy in its bank account."""
 )
 
 
-## Harvesting Energy from the Environment ###########################
+## Environment Profiles for Energy Harvesting #######################
 st.markdown("---")
-st.header("Environment Profiles for Harvestable Energy")
+st.header("Environment Profiles for Energy Harvesting")
 
 st.markdown(
     """A energy harvesting sensor is able to harvest energy from its surrounding
@@ -241,19 +222,18 @@ environment in which the sensor is deployed."""
 )
 
 st.markdown(
-    f"""The {sensor_profile.manufacturer} {sensor_profile.display_name} uses a solar
-cell, also known as a photovoltaic (PV) cell, to harvest energy from the environment by
-converting available light into electricity. The most critical environment profile
-characteristic for a PV cell-enabled sensor is the level of intensity of the available
-ambient light, which is measured in lux. The environment lux level determines whether a
-sensor operates in a plentiful, limited, or no energy harvesting scenario and has a
-direct impact on sensor availability and runtime."""
+    f"""Sensors that harvest light energy from the environment use a solar cell, or
+photovoltaic (PV) cell, to convert available light into electricity. The most critical
+environment profile characteristic for a PV cell-enabled sensor is the level of
+intensity of the available ambient light, which is measured in lux. The environment lux
+level determines whether a sensor operates in a plentiful, limited, or no energy
+harvesting zone and has a direct impact on sensor availability and runtime."""
 )
 
 st.markdown(
     """In outdoor settings, environment lux levels are driven by ambient solar light,
 and vary widely depending on the time of day and the weather. The chart below depicts
-typical lux levels across a range of outdoor conditions."""
+typical lux levels across a range of outdoor conditions.$^{1}$"""
 )
 st.markdown("")
 
@@ -261,9 +241,10 @@ outdoor_lux_chart = eh.charts.environment_lux_outside()
 st.altair_chart(outdoor_lux_chart)
 
 st.markdown(
-    f"""In indoor settings$^{1}$, environmental lux levels are driven primarily by ambient
-artificial lighting, but can also be influenced by the presence of ambient solar light.
-The chart below depicts characteristic lux ranges across a variety of indoor spaces."""
+    """In indoor settings$^{2}$, environmental lux levels are driven primarily by
+ambient artificial lighting, but can also be influenced by the presence of ambient solar
+light. The chart below depicts characteristic lux ranges across a variety of indoor
+spaces.$^{3}$"""
 )
 
 st.markdown("")
@@ -298,7 +279,7 @@ absence of light until light is restored, for example, overnight."""
 
 ## A Simple Energy Model ############################################
 st.markdown("---")
-st.header("Energy Harvesting Sensor Power Usage")
+st.header("Energy Harvesting Sensor Power Management")
 
 st.subheader("""Power Usage and Mode of Operation""")
 
@@ -349,10 +330,7 @@ col3.markdown(
 
 col4.markdown("**Standby Mode**")
 col4.markdown("`low power`")
-col4.markdown(
-    """* listen for wakeup signal
-* receive instruction for next event"""
-)
+col4.markdown("""* wait on clock to trigger event""")
 
 st.markdown("")
 st.markdown(
@@ -360,83 +338,247 @@ st.markdown(
 operation."""
 )
 
+st.markdown("")
 st.subheader("""A Simple Sensor Power Usage Model""")
 
 st.markdown(
     f"""To define a simplified power usage model for an energy harvesting sensor,
-consider a theoretical sensor with two modes: **active** and **idle**. In its active
-mode, the sensor takes and transmits a reading (both high power operations), and in its
-idle mode, the sensor listens for the request to take its next reading (a low power
-operation). Assume that the request signal is generated at a consistent frequency.
+consider a theoretical sensor with two modes: **active** and **idle**. In active mode,
+the sensor *samples*&mdash;it takes and transmits one reading. In idle mode, the sensor
+listens for a request to trigger its next sample. (Assume that the request signal is
+generated at a consistent frequency). The sensor uses more power to sample in active
+mode than when waiting in idle mode.
 
-In idle mode, the sensor waits to receive a request, consuming minimal power. Once the
-request for a reading arrives, the sensor exits idle mode and enters active mode. While
-in active mode, the sensor takes and transmits a reading, consuming a higher average
-power than when in idle mode. When the active operations are completed, the sensor
-returns to idle mode and low power usage. These transitions are illustrated in the chart
-below."""
+In idle mode, the sensor waits to receive a request, consuming minimal power. Once a
+request for a sample arrives, the sensor exits idle mode and enters active mode. While
+in active mode, the sensor takes and transmits a reading, consuming more power than when
+previously in idle mode. When its active sampling operations are completed, the sensor
+returns to idle mode and low power usage, until it receives its next reading request.
+These transitions are illustrated in the chart below."""
 )
 
-power_profile_chart = eh.charts.power_profile()
+col1, col2, col3, col4 = st.columns([1, 1, 1.25, 2])
+idle_power = col1.number_input(
+    f"Idle Power ({eh.utils.MU}W)", min_value=10, max_value=60, step=1, value=10
+)
+
+active_power = col2.number_input(
+    f"Active Power ({eh.utils.MU}W)",
+    min_value=idle_power + 1,
+    max_value=75,
+    step=1,
+    value=60,
+)
+
+reading_seconds = col3.number_input(
+    f"Sampling Operation (s)", min_value=5, max_value=25, step=1, value=15
+)
+
+event_frequencies = collections.OrderedDict(
+    {
+        "every 30 seconds": 30,
+        "every minute": 60,
+        "every 5 minutes": 60 * 5,
+        "every 15 minutes": 60 * 15,
+        "every half hour": 60 * 30,
+    }
+)
+
+sampling_frequency = col4.selectbox(
+    "Sampling Frequency", list(event_frequencies.keys()), index=1
+)
+
+
+power_profile_chart, duty_cycle, average_load_power = eh.charts.power_profile(
+    idle_power=idle_power,
+    active_power=active_power,
+    active_operation_seconds=reading_seconds,
+    active_operation_frequency=event_frequencies[sampling_frequency],
+)
+
+col1, col2, _ = st.columns([1, 2, 5])
+col1.metric("Duty Cycle", round(duty_cycle, 2))
+col2.metric("Average Load Power", f"{round(average_load_power)} {eh.utils.MU}W")
+
 st.altair_chart(power_profile_chart)
-
-st.markdown(
-    f"""A simplified model can be used to calculate sensor runtime if the following
-properties of the system are defined:"""
-)
-
-col1, col2 = st.columns(2)
-col1.markdown("**Energy Harvest and Storage**")
-col1.markdown(
-    """* average amount of power harvested
-* amount of energy stored on the sensor"""
-)
-col2.markdown("**Sensor Load**")
-col2.markdown(
-    """* modes of operation (e.g. active, idle)
-* amount of power consumed in each mode of operation
-* period of time spent in each mode of operation
-"""
-)
 
 st.markdown("")
 st.markdown(
-    """The **duty-cycle rate** is the rate at which the sensor is active. It is
-calculated as follows:"""
+    """The **duty-cycle**, $D$, is the rate at which the sensor is active. It is
+calculated as the fraction of one *period* in which the sensor is active. In the above
+example, duty cycle is driven by the sampling frequency; one period is a single cycle
+of: taking a reading, transmitting the reading, and waiting for the next reading
+request. $t_{active}$ is the time spent by the sensor taking and transmitting a reading
+in active mode, and $t_{idle}$ is the time spent in idle mode waiting for the next reading
+request."""
 )
 
-st.latex(r"""R_{cycle} = \dfrac{1}{t_{idle} + t_{active}}""")
+st.latex(r"""D=\dfrac{t_{active}}{t_{idle} + t_{active}}""")
+
+st.markdown("")
+st.markdown(
+    """The **average load power** is the average of the powers used during each mode of
+operation. $P_{active}$ is the power consumed while in active mode, and $P_{idle}$ is
+the power consumed while in idle mode."""
+)
+
+st.latex(r"""P_{load} = D \cdot P_{active} + (1-D) \cdot P_{idle}""")
+
+st.markdown("")
+st.subheader("""Power Management and Energy Harvesting Zones""")
 
 st.markdown(
-    """where $R_{cycle}$ is the duty-cycle rate, $t_{idle}$ is the time in idle
-mode during one duty-cycle, and $t_{active}$ is the time in active mode during one
-duty-cycle. The **average load power** is the average of the powers used during each
-mode of operation, defined as:"""
-)
-
-st.latex(
-    r"""P_{load} = R_{cycle}(P_{idle} \cdot t_{idle} + P_{active} \cdot t_{active})"""
+    """In energy harvesting systems, available power can scale across many orders of
+magnitude&mdash;far more so than conventional battery-powered systems. This presents
+both challenges, and opportunities, for energy harvesting system designers to scale
+power usage across the same orders of magnitude. Power management is at the heart of
+effective and efficient energy harvesting sensors and systems."""
 )
 
 st.markdown(
-    """where $P_{load}$ is the average load power, $P_{idle}$ is the power
-consumed in idle mode, and $P_{active}$ is the average power consumed in active mode."""
+    """Consider a theoretical, ideal energy harvesting sensor that functions such that
+the power consumed (the load power) is equal to the power harvested. Further, this
+sensor is "always on": if it is available, it consumes power. The sensor has a **power
+floor**, which is the minimum amount of power that the sensor requires to remain
+available. For as long as it remains available, its power consumption is at least the
+power floor."""
 )
 
 st.markdown(
-    """To solve for **runtime**, the stored sensor energy is divided by the
-difference between the the load power and harvested power:"""
+    """If the sensor does not have stored energy, it becomes unavailable once the
+harvestable power drops below the power floor. If the sensor has stored energy, it will
+continue to operate when the harvestable power drops below the power floor, until the
+stored energy is depleted to a volume that cannot provide sufficient power to meet the
+power floor."""
 )
 
-st.latex(r"""t_{runtime} = \dfrac{E_{store}}{P_{load} - P_{harvest}}""")
+caption_text = """*The chart below uses a* log scale *for power, so that a very wide range
+of power values&mdash;from one nanowatt (10$^{-9}$ watts) to one watt&mdash;can be
+displayed compactly.*"""
+
+st.caption(caption_text)
+
+example_pload_vs_pharv_chart = eh.charts.example_pload_vs_pharv()
+st.altair_chart(example_pload_vs_pharv_chart)
 
 st.markdown(
-    """where $t_{runtime}$ is runtime and $E_{store}$ is the energy stored by
-the sensor."""
+    """Next, consider the operation of the sensor. It has a variety of modes that enable
+it to perform a collection of operations. Each mode requires differing levels of power
+at increasing duty cycles. When the sensor is fully active in a given mode, its load
+power is equal to the **active power** of that mode. When the sensor is partially active in
+the given mode, the load power varies between the sensor power floor and the mode active power.
+When the sensor is minimally active in the given mode, eventually the load power settles
+at the power floor."""
 )
 
+example_power_modes_chart = eh.charts.example_power_modes()
+st.altair_chart(example_power_modes_chart)
 
-## No Energy Harvesting #############################################
+st.markdown(
+    """The [energy harvesting zones](#fundamentals-of-energy-harvesting-sensors) that
+were covered earlier in the primer are relative to the power consumed by the sensor and
+can be calculated in terms of harvestable power. When the expected power consumption of
+a sensor is known, based on the desired operating mode and the rate at which the sensor
+operates in that mode, then one can define the real-world boundaries of the three zones:
+* no energy harvesting
+* constrained energy harvesting
+* plentiful energy harvesting"""
+)
+
+st.markdown(
+    """In the interactive chart below, it is possible to experiment with changes to
+sensor mode of operation and floor power, and explore the effects of these variables
+on energy harvesting zones."""
+)
+
+df_power_list = pd.DataFrame(
+    [
+        {"label": "10 nanowatts (10 nW)", "value": 1e-8},
+        {"label": "100 nanowatts (100 nW)", "value": 1e-7},
+        {"label": "1 microwatt (1 \u03bcW)", "value": 1e-6},
+        {"label": "10 microwatts (10 \u03bcW)", "value": 1e-5},
+        {"label": "100 microwatts (100 \u03bcW)", "value": 1e-4},
+        {"label": "1 milliwatt (1 mW)", "value": 1e-3},
+        {"label": "10 milliwatts (10 mW)", "value": 1e-2},
+        {"label": "100 milliwatts (100 mW)", "value": 1e-1},
+        {"label": "1 watt (1W)", "value": 1e0},
+    ]
+)
+
+col1, col2 = st.columns([1, 1])
+
+selected_p_floor = col1.selectbox(
+    "Sensor Power Floor", options=df_power_list[df_power_list["value"] < 1], index=2
+)
+p_floor = df_power_list[df_power_list["label"] == selected_p_floor].iloc[0]["value"]
+
+selected_p_active = col2.selectbox(
+    "Sensor Mode of Operation: Active Power",
+    options=df_power_list[df_power_list["value"] > p_floor],
+    index=2,
+)
+p_active = df_power_list[df_power_list["label"] == selected_p_active].iloc[0]["value"]
+
+power_operating_space_chart = eh.charts.power_operating_space(p_floor, p_active)
+st.altair_chart(power_operating_space_chart)
+
+
+## The ENV+ Environmental Sensor ################################
+st.markdown("---")
+st.header(f"The Everactive Environmental+ Batteryless IoT Evaluation Kit")
+
+st.markdown(
+    f"""[**The Everactive Environmental+ Batteryless IoT Evaluation Kit**](https://everactive.com/product/environmental-evaluation-kit/)
+(EvalKit) is a new offering from Everactive that enables hardware and software
+developers to learn how to design robust, self-powered IoT products without the
+constraints of batteries. Our EvalKits, powered by {sensor_profile.manufacturer}
+{sensor_profile.full_display_name} nodes, offer the following capabilities:"""
+)
+
+tech_spec_column_ratio = [1, 5]
+icon_dir = f"{IMAGE_DIR}/icons"
+
+col1, col2 = st.columns(tech_spec_column_ratio)
+col1.image(f"{icon_dir}/photovoltaic_icon.png")
+
+col2.markdown(
+    f"""**Photovoltaic Energy Harvesting**{ST_LINE_BREAK}The
+{sensor_profile.display_name} uses an AM1454 solar cell to harvest energy by converting
+available light into electricity."""
+)
+
+col1, col2 = st.columns(tech_spec_column_ratio)
+col1.image(f"{icon_dir}/environmental_sensing_icon.png")
+col2.markdown(
+    f"""**Environmental Sensing**{ST_LINE_BREAK}The {sensor_profile.display_name} uses
+a BME280 environmental sensor to measure temperature, humidity, and barometric pressure.
+It also uses an ultra-low power accelerometer, the ADXL362, to measure acceleration
+along three axes."""
+)
+
+col1, col2 = st.columns(tech_spec_column_ratio)
+col1.image(f"{icon_dir}/energy_storage_icon.png")
+
+col2.markdown(
+    f"""**Energy Storage**{ST_LINE_BREAK}The {sensor_profile.display_name} has an
+operating capacitance of 2.5mF and 800mF of storage capacitance. The sensor node's
+operating capacitance is supported by a bank of 100uF low&#8209;leakage ceramic
+capacitors, and its storage capacitance is supported by a CAP&#8209;XX&nbsp;HA130F
+supercapacitor."""
+)
+
+st.markdown(
+    f"""When the {sensor_profile.display_name} takes an environmental reading, it
+transmits the reading as a data packet to the Mini Evergateway, which then uses the
+virtual gateway running on the developer's computer to send the reading to the
+Everactive cloud. The reading data is then accessible via the Everactive Developer
+Console, the Everactive API, or a webhook connection."""
+)
+
+st.image(f"{IMAGE_DIR}/everactive_evalkit_data_flow.png")
+
+
+## Energy Harvesting Scenarios ######################################
 st.markdown("---")
 st.header(f"{sensor_profile.display_name}: Energy Harvesting Scenarios")
 
@@ -444,7 +586,7 @@ st.markdown(
     f"""Building upon the fundamentals of energy harvesting, environmental light
 considerations, and a simplified power usage model for energy harvesting sensors, we
 can now explore the impact of energy harvesting on the {sensor_profile.manufacturer}
-{sensor_profile.display_name} runtime at different duty-cycles."""
+{sensor_profile.display_name} runtime at different sampling rates."""
 )
 
 st.subheader("No Energy Harvesting: Equivalent to Battery")
@@ -460,7 +602,7 @@ runtime no longer improves."""
 )
 
 st.markdown(
-    f"""The chart below depicts the expected runtime and measurements$^{2}$ of a
+    f"""The chart below depicts the expected runtime and measurements$^{4}$ of a
 {sensor_profile.display_name} for different duty-cycle rates in the absence of
 harvestable energy, assuming that the sensor is fully charged before beginning
 operation."""
@@ -505,118 +647,39 @@ runtime_variable_lux_chart = eh.charts.runtime_variable_lux(
 st.altair_chart(runtime_variable_lux_chart)
 
 
-## Energy Harvesting vs. Conventional Batteries #####################
+## Introduction #####################################################
 st.markdown("---")
-st.header("Energy Harvesting vs. Conventional Batteries")
+st.header("Continue the Exploration")
 
 st.markdown(
-    f"""As shown above, the {sensor_profile.manufacturer} {sensor_profile.display_name}
-has a short, finite runtime in the absence of harvestable energy. As a thought
-experiment, let us explore the hypothetical runtime of the {sensor_profile.display_name}
-if it were powered by a conventional commercial battery."""
-)
-
-st.markdown(
-    f"""Alkaline batteries, including AAA and AA types have a finite shelf life. Even
-though theoretical battery-powered {sensor_profile.display_name} runtime calculations
-might predict a runtime of 10+ years, in reality, these batteries have a shelf life of
-five to ten years, when kept in ideal conditions (room temperature, low relative
-humidity). The calculations used for the chart below thus incorporate a maximum shelf
-life of ten years for an alkaline battery."""
-)
-
-st.markdown("")
-
-runtime_battery_comparison_chart = eh.charts.runtime_battery_comparison(
-    run_duty_cycle_every, sensor_profile
-)
-
-st.altair_chart(runtime_battery_comparison_chart)
-
-st.markdown(
-    f"""In the absence of harvestable energy, the order of magnitude of runtime is
-drastically different between energy harvesting and a commercial battery: years vs.
-hours. At first, it might appear that the commercial battery is the more compelling
-choice; runtime could theoretically range up to ten years, depending on the duty-cycle
-rate. For a single sensor, using a commercial battery is a cheaper choice, with minimal
-required maintenance."""
-)
-
-st.markdown("""However, there are other key variables to consider.""")
-
-st.subheader("Frequency of Sampling")
-
-st.markdown(
-    f"""The {sensor_profile.display_name} takes environmental measurements of interest
-at a rate defined by the duty-cycle. Typically, these measurements are taken in service
-of a sensing solution that detects events based on available sensor measurements. The
-profile of the detected event(s) needs to drive the sensor duty-cycle rate. For example,
-an event that occurs over a short period (e.g. a minute, several seconds) is unlikely to
-be detected if the sensor takes measurements every day or every hour. To increase the
-probability of detecting the event, the sensor would need to take measurements more
-frequently, requiring a higher duty-cycle rate."""
+    """If this primer has piqued your interest and aided your understanding of energy
+harvesting sensors and systems, head over to [everactive.com](https://everactive.com/)
+to learn more about:"""
 )
 
 st.markdown(
-    """When using a battery-powered sensor, increasing the sensor duty-cycle rate
-decreases the sensor runtime. For sensing solutions that rely on frequent or continuous
-duty-cycle rates, battery-powered sensors require increased battery replacement to
-compensate for shorter-lived runtimes."""
+    "* [Our Batteryless Technology](https://everactive.com/batteryless-technology/)"
 )
-
-st.subheader("Average Power Load")
 st.markdown(
-    """The average power load utilized by a sensor increases as new operations are
-introduced to the sensor and as it takes on more computationally intensive workloads.
-Increasing the average power load will decrease the runtime of a battery-powered sensor.
-As such, there is a direct tradeoff between sensor runtime and the number of operations
-that can be executed by the sensor over its lifetime. A battery cannot replenish stored
-energy in the same manner as an energy harvesting sensor; its number of potential
-operations is limited by the power load required by these operations. Average power load
-is a central concern for sensor solutions that require intensive edge data processing
-capabilities, particularly solutions that leverage machine learning."""
+    "* [Real-World, Industrial IOT Solutions Using Our Technology](https://everactive.com/applications/)"
 )
-
-st.subheader("Scale of Solution")
 st.markdown(
-    """Wireless sensing solutions are rarely dependent on one sensor; it often takes a
-fleet of sensors to implement a sensing solution for a large operation or facility.
-At scale, in challenging environments, sensor maintenance is a substantial concern.
-Battery-powered sensors not only require replacements for dead batteries, but also
-require an additional level of monitoring such that dead batteries can be detected."""
+    "* [How You Can Start Developing with Everactive Edge](https://everactive.com/self-powered-iot-developers/)"
 )
 
 st.markdown(
-    """In industrial settings, sensors can be difficult to access due to necessary
-placement. Within a facility, a sensor might be located out of reach without a ladder,
-under large machinery, or amidst potentially hazardous equipment - the act of replacing
-a single battery might take several minutes. As the sensor fleet size increases, the
-maintenance burden can quickly scale to require days, weeks, even months of effort
-simply to keep battery-powered sensors operational."""
+    """Stay tuned for further additions to Everactive's Energy Harvesting Sensors &
+Systems curriculum."""
 )
-
-df_battery_minutes = pd.DataFrame(
-    [{"display_value": f"{x} minutes", "minutes": x} for x in range(3, 10, 1)]
-)
-
-selected_time_to_replace_battery = st.select_slider(
-    "Average Time to Replace a Battery", value="5 minutes", options=df_battery_minutes
-)
-
-time_to_replace_battery = df_battery_minutes[
-    df_battery_minutes["display_value"] == selected_time_to_replace_battery
-].iloc[0]["minutes"]
-
-
-battery_maintenance_burden_chart = eh.charts.battery_maintenance_burden(
-    time_to_replace_battery
-)
-
-st.altair_chart(battery_maintenance_burden_chart)
-
 
 ## Footnotes ########################################################
 st.markdown("---")
 
-st.caption("$^{1}$" f"The {sensor_profile.display_name} is rated for indoor use.")
-st.caption("""$^{2}$ Sensor performance was measured at room temperature.""")
+st.caption(
+    "$^{1}$ Chart References: [Engineering Toolbox: Outdoor Light Levels](https://www.engineeringtoolbox.com/light-level-rooms-d_708.html)"
+)
+st.caption("$^{2}$" f"The {sensor_profile.display_name} is rated for indoor use.")
+st.caption(
+    """$^{3}$ Chart References: EN 12464-1:2021, [EnOcean Application Notes: AN201 Indoor Lighting Conditions](https://www.enocean.com/wp-content/uploads/application-notes/AN201_INDOOR_LIGHTING_CONDITIONS_2020.pdf)"""
+)
+st.caption("""$^{4}$ Sensor performance was measured at room temperature.""")

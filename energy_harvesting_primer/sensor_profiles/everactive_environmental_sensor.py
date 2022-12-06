@@ -175,20 +175,6 @@ class EveractiveEnvironmentalPlusEversensor(BaseSensorProfile):
 
         return average_load_power
 
-    def get_average_load_power_for_battery(self, duty_cycle_period: int) -> float:
-        """Return average load power, in microwatts (uW), based on duty cycle, for a
-        sensor theoretically operating off battery instead of energy harvesting.
-
-        Args:
-            duty_cycle_period: Duty-cycle rate period, in seconds
-
-        Return:
-            Average power load, in microwatts, for a theoretical battery-powered sensor
-        """
-        return self._params["efficiency_pin_vin"] * self.get_average_load_power(
-            duty_cycle_period
-        )
-
     @property
     def _duty_cycle_period_to_required_lux(self) -> Dict:
         return {

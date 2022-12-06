@@ -3,7 +3,7 @@ import pandas as pd
 
 import energy_harvesting_primer.charts.color as palette
 
-CHART_HEIGHT = 180
+CHART_HEIGHT = 280
 CHART_WIDTH = 600
 
 color = palette.ColorPalette()
@@ -14,12 +14,20 @@ def energy_harvesting_process() -> alt.LayerChart:
     store energy, consume energy and return as an Altair chart."""
 
     block_width = 20
-    block_height = 10
-    block_offset = 10
-    min_y, max_y = -4, 12
-    origin_x, origin_y = 10, 0
-    comments_offset_x, comments_offset_y = 1, 1.5
+    block_height = 20
+    block_offset = 5
+
+    origin_x, origin_y = 20, 20
+    comments_offset_x, comments_offset_y = 1, 4
+
+    edge_offset = 5
     arrow_head_epsilon = 0.8
+    bounding_offset = 10
+
+    min_x = origin_x - bounding_offset
+    max_x = origin_x + block_width * 3 + block_offset * 2 + bounding_offset
+    min_y = origin_y - block_height - bounding_offset
+    max_y = origin_y + block_height + bounding_offset * 2 - 2
 
     # Block Meta definition
     # The diagram is laid out on a grid, and then axes and gridlines are hidden.
@@ -56,13 +64,13 @@ def energy_harvesting_process() -> alt.LayerChart:
             "x": origin_x + block_width + block_offset,
             "x2": origin_x + block_width * 2 + block_offset,
             "y": origin_y,
-            "y2": origin_y + block_height,
+            "y2": origin_y - block_height,
             "label": "Store\nEnergy",
             "label_x": origin_x + block_width + block_offset + block_width / 2,
-            "label_y": origin_y + block_height / 2,
+            "label_y": origin_y - block_height / 2,
             "comments": "e.g. Supercapacitor",
             "comments_x": origin_x + block_width + block_offset + comments_offset_x,
-            "comments_y": origin_y - comments_offset_y,
+            "comments_y": origin_y - block_height - comments_offset_y,
         },
         {
             "x": origin_x + block_width * 2 + block_offset * 2,
@@ -81,25 +89,57 @@ def energy_harvesting_process() -> alt.LayerChart:
         },
     ]
 
+    # Environment block.
+    environment_border_meta = [
+        {
+            "x": min_x,
+            "x2": max_x,
+            "y": min_y,
+            "y2": max_y,
+            "label_x_env": min_x + 2,
+            "label_y_env": max_y - 6,
+            "label_env": "Environment",
+        }
+    ]
+
     # Define positioning of all individual horizontal lines on the diagram.
     lines_horizontal = [
         {
             "x": origin_x + block_width,
-            "x2": origin_x + block_width + block_offset,
+            "x2": origin_x + block_width + block_offset + edge_offset,
             "y": (origin_y + origin_y + block_height) / 2,
         },
         {
-            "x": origin_x + block_width * 2 + block_offset,
+            "x": origin_x + block_width * 2 + block_offset - edge_offset,
             "x2": origin_x + block_width * 2 + block_offset * 2,
             "y": (origin_y + origin_y + block_height) / 2,
+        },
+        {
+            "x": origin_x + block_width,
+            "x2": origin_x + block_width * 2 + block_offset * 2,
+            "y": origin_y + block_height * 0.75,
+        },
+    ]
+
+    # Define positioning of all individual vertical lines on the diagram.
+    lines_vertical = [
+        {
+            "x": origin_x + block_width + block_offset + edge_offset,
+            "y": (origin_y + origin_y + block_height) / 2,
+            "y2": origin_y,
+        },
+        {
+            "x": origin_x + block_width * 2 + block_offset - edge_offset,
+            "y": (origin_y + origin_y + block_height) / 2,
+            "y2": origin_y,
         },
     ]
 
     # Define positions of triangle marks that serve as arrow heads.
-    arrow_heads = [
+    horizontal_arrow_heads = [
         {
-            "x": origin_x + block_width + block_offset - arrow_head_epsilon,
-            "y": origin_y + block_height / 2,
+            "x": origin_x + block_width * 2 + block_offset * 2 - arrow_head_epsilon,
+            "y": origin_y + block_height * 0.75,
         },
         {
             "x": origin_x + block_width * 2 + block_offset * 2 - arrow_head_epsilon,
@@ -107,9 +147,19 @@ def energy_harvesting_process() -> alt.LayerChart:
         },
     ]
 
+    vertical_arrow_heads = [
+        {
+            "x": origin_x + block_width + block_offset + edge_offset,
+            "y": origin_y + arrow_head_epsilon * 2,
+        },
+    ]
+
     df_block_meta = pd.DataFrame(block_meta)
+    df_environment = pd.DataFrame(environment_border_meta)
     df_lines_horizontal = pd.DataFrame(lines_horizontal)
-    df_arrows = pd.DataFrame(arrow_heads)
+    df_lines_vertical = pd.DataFrame(lines_vertical)
+    df_arrows_horizontal = pd.DataFrame(horizontal_arrow_heads)
+    df_arrows_vertical = pd.DataFrame(vertical_arrow_heads)
 
     # Add mouseover selection to capture cursor x position.
     nearest = alt.selection(
@@ -124,16 +174,53 @@ def energy_harvesting_process() -> alt.LayerChart:
         alt.Chart(df_block_meta)
         .mark_rect(opacity=0.8, cornerRadius=10)
         .encode(
-            x=alt.X("x", axis=None),
+            x=alt.X(
+                "x",
+                axis=None,
+                scale=alt.Scale(domain=[min_x, max_x]),
+            ),
             x2="x2",
-            y=alt.Y("y", axis=None, scale=alt.Scale(domain=[min_y, max_y])),
+            y=alt.Y(
+                "y",
+                axis=None,
+                scale=alt.Scale(domain=[min_y, max_y]),
+            ),
             y2="y2",
             color=alt.condition(
                 nearest,
                 alt.value(color.chartreuse()),
-                alt.value(color.chartreuse(50)),
+                alt.value(color.chartreuse(67)),
             ),
             tooltip=alt.value(None),
+        )
+        .add_selection(nearest)
+    )
+
+    environment_border = (
+        alt.Chart(df_environment)
+        .mark_rect(color=color.sand(), opacity=0.2)
+        .encode(
+            x=alt.X("x", axis=None, scale=alt.Scale(domain=[min_x, max_x])),
+            x2="x2",
+            y=alt.Y("y", axis=None, scale=alt.Scale(domain=[min_y, max_y])),
+            y2="y2",
+        )
+    )
+
+    environment_label = (
+        alt.Chart(df_environment)
+        .mark_text(
+            align="left",
+            size=14,
+            lineBreak="\n",
+            color=color.charcoal(),
+            opacity=0.5,
+            fontWeight="lighter",
+        )
+        .encode(
+            alt.X("label_x_env", axis=None),
+            alt.Y("label_y_env", axis=None),
+            text="label_env",
         )
     )
 
@@ -166,8 +253,14 @@ def energy_harvesting_process() -> alt.LayerChart:
         .encode(x=alt.X("x"), x2="x2", y=alt.Y("y"))
     )
 
-    arrows = (
-        alt.Chart(df_arrows)
+    vertical_lines = (
+        alt.Chart(df_lines_vertical)
+        .mark_line()
+        .encode(x=alt.X("x"), y=alt.Y("y"), y2="y2")
+    )
+
+    arrows_horizontal = (
+        alt.Chart(df_arrows_horizontal)
         .mark_point(
             shape="triangle",
             size=50,
@@ -178,15 +271,30 @@ def energy_harvesting_process() -> alt.LayerChart:
         .encode(alt.X("x"), alt.Y("y"))
     )
 
+    arrows_vertical = (
+        alt.Chart(df_arrows_vertical)
+        .mark_point(
+            shape="triangle",
+            size=50,
+            angle=180,
+            fill=color.charcoal(),
+            color=color.charcoal(),
+        )
+        .encode(alt.X("x"), alt.Y("y"))
+    )
+
     diagram = (
         alt.layer(
+            environment_label,
+            environment_border,
             blocks,
             block_labels,
             block_comments,
             horizontal_lines,
-            arrows,
+            vertical_lines,
+            arrows_horizontal,
+            arrows_vertical,
         )
-        .add_selection(nearest)
         .configure_axis(grid=False)
         .configure_view(strokeWidth=0)
         .properties(height=CHART_HEIGHT, width=CHART_WIDTH)
