@@ -13,7 +13,7 @@ color = palette.ColorPalette()
 def runtime_variable_lux(
     sensor_profile: profiles.BaseSensorProfile, harvestable_lux: int
 ) -> alt.Chart:
-    """Assemble chart depicting sensor runtime at a range of duty-cycle rates, given
+    """Assemble chart depicting sensor runtime at a range of sampling frequencies, given
     a level of harvestable lux.
 
     Args:
@@ -84,14 +84,17 @@ def runtime_variable_lux(
             alt.X(
                 "duty_cycle_name",
                 axis=alt.Axis(
-                    title="Duty-Cycle", labelAngle=-35, labelExpr=tick_label_expr
+                    title=f"{sensor_profile.display_name} Sampling Frequency",
+                    titlePadding=12,
+                    labelAngle=-35,
+                    labelExpr=tick_label_expr,
                 ),
                 sort=duty_cycle_sort_order,
             ),
             alt.Y("y", axis=None),
             alt.Color(
                 "operation:N",
-                legend=alt.Legend(title="Sensor Runtime"),
+                legend=alt.Legend(title=f"{sensor_profile.display_name} Runtime"),
                 scale=color_scale,
             ),
             tooltip=[

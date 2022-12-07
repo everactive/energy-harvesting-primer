@@ -20,17 +20,6 @@ st.set_page_config(
 ## App Variables ####################################################
 sensor_profile = eh.sensor_profiles.EveractiveEnvironmentalPlusEversensor()
 
-run_duty_cycle_every = collections.OrderedDict(
-    {
-        "Continuous": sensor_profile.operation_active_time,
-        "Every 30 seconds": 30,
-        "Every minute": 60,
-        "Every 10 minutes": 60 * 10,
-        "Every hour": 60 * 60,
-        "Every day": 60 * 60 * 24,
-        "Never (always idle)": 10000000,
-    }
-)
 
 ## Sidebar ##########################################################
 st.sidebar.image(f"{IMAGE_DIR}/everactive_logo.png")
@@ -46,15 +35,18 @@ sidebar_links = [
     {"title": "Environment Profiles for Energy Harvesting", "level": "III"},
     {"title": "Energy Harvesting Sensor Power Management", "level": "IV"},
     {
-        "title": f"The Everactive Environmental+ Batteryless IoT Evaluation Kit",
+        "title": f"The Everactive Environmental+ Batteryless IoT Evaluation Kit and Eversensor",
         "level": "V",
     },
-    {"title": "ENV+ Eversensor: Energy Harvesting Scenarios", "level": "VI"},
+    {
+        "title": f"Energy Harvesting in Action with the {sensor_profile.manufacturer} {sensor_profile.display_name}",
+        "level": "VI",
+    },
     {"title": "Continue the Exploration", "level": "VII"},
 ]
 
 for idx, link in enumerate(sidebar_links):
-    sidebar_col1, sidebar_col2, _ = st.sidebar.columns([1, 10, 1])
+    sidebar_col1, sidebar_col2, _ = st.sidebar.columns([1.5, 10, 1])
     sidebar_col1.markdown(f"**{link['level']}**")
 
     if link.get("page_link"):
@@ -388,7 +380,6 @@ sampling_frequency = col4.selectbox(
     "Sampling Frequency", list(event_frequencies.keys()), index=1
 )
 
-
 power_profile_chart, duty_cycle, average_load_power = eh.charts.power_profile(
     idle_power=idle_power,
     active_power=active_power,
@@ -525,14 +516,17 @@ st.altair_chart(power_operating_space_chart)
 
 ## The ENV+ Environmental Sensor ################################
 st.markdown("---")
-st.header(f"The Everactive Environmental+ Batteryless IoT Evaluation Kit")
+st.header(
+    f"The Everactive Environmental+ Batteryless IoT Evaluation Kit and Eversensor"
+)
 
 st.markdown(
     f"""[**The Everactive Environmental+ Batteryless IoT Evaluation Kit**](https://everactive.com/product/environmental-evaluation-kit/)
 (EvalKit) is a new offering from Everactive that enables hardware and software
-developers to learn how to design robust, self-powered IoT products without the
-constraints of batteries. Our EvalKits, powered by {sensor_profile.manufacturer}
-{sensor_profile.full_display_name} nodes, offer the following capabilities:"""
+developers to learn how to design robust, self-powered Internet of Thing (IoT) products
+without the constraints of batteries. Our EvalKits, powered by
+{sensor_profile.manufacturer} {sensor_profile.full_display_name} nodes, offer the
+following capabilities:"""
 )
 
 tech_spec_column_ratio = [1, 5]
@@ -569,7 +563,7 @@ supercapacitor."""
 
 st.markdown(
     f"""When the {sensor_profile.display_name} takes an environmental reading, it
-transmits the reading as a data packet to the Mini Evergateway, which then uses the
+transmits the reading as a data packet to the Mini Evergateway, which uses a
 virtual gateway running on the developer's computer to send the reading to the
 Everactive cloud. The reading data is then accessible via the Everactive Developer
 Console, the Everactive API, or a webhook connection."""
@@ -577,58 +571,46 @@ Console, the Everactive API, or a webhook connection."""
 
 st.image(f"{IMAGE_DIR}/everactive_evalkit_data_flow.png")
 
+st.markdown(
+    f"""The EvalKit provides developers and designers with hands-on experience of the
+building blocks of hyperscale IoT applications, including the energy harvesting sensor
+concepts covered in this primer."""
+)
+
 
 ## Energy Harvesting Scenarios ######################################
 st.markdown("---")
-st.header(f"{sensor_profile.display_name}: Energy Harvesting Scenarios")
-
-st.markdown(
-    f"""Building upon the fundamentals of energy harvesting, environmental light
-considerations, and a simplified power usage model for energy harvesting sensors, we
-can now explore the impact of energy harvesting on the {sensor_profile.manufacturer}
-{sensor_profile.display_name} runtime at different sampling rates."""
-)
-
-st.subheader("No Energy Harvesting: Equivalent to Battery")
-
-st.markdown(
-    f"""When the {sensor_profile.display_name} is not able to harvest any energy from
-the environment, it is equivalent to a battery-powered sensor. The design space provides
-just one variable without making hardware or firmware changes, duty-cycle rate, and
-operation is a trade-off between taking more measurements vs. extending sensor runtime.
-Decreasing the duty-cycle rate decreases the average load power and increases sensor
-runtime; however, there is a limit. As the sensor approaches its power floor, the
-runtime no longer improves."""
+st.header(
+    f"Energy Harvesting in Action with the {sensor_profile.manufacturer} {sensor_profile.display_name}"
 )
 
 st.markdown(
-    f"""The chart below depicts the expected runtime and measurements$^{4}$ of a
-{sensor_profile.display_name} for different duty-cycle rates in the absence of
-harvestable energy, assuming that the sensor is fully charged before beginning
-operation."""
-)
-st.markdown("")
-
-runtime_no_harvestable_energy_chart = eh.charts.runtime_no_harvestable_energy(
-    run_duty_cycle_every, sensor_profile
-)
-st.altair_chart(runtime_no_harvestable_energy_chart)
-
-
-## Available Energy Harvesting ######################################
-st.subheader("Available Energy Harvesting")
-
-st.markdown(
-    f"""The {sensor_profile.display_name} is able to harvest energy from ambient light
-using its integrated photovoltaic (PV) cells and store that harvested energy to power
-continued measurements. If the sensor can decrease the average load power to less than
-the average harvested power, then the runtime of the sensor is **infinite**."""
+    f"""The {sensor_profile.manufacturer} {sensor_profile.display_name} is one example
+of a real-world energy harvesting sensor. The {sensor_profile.display_name} uses a PV
+cell to harvest light energy from the environment. Harvested energy is used by the
+sensor to sample; it takes environmental readings and transmits the data to the
+Everactive cloud via the Mini Evergateway."""
 )
 
 st.markdown(
-    f"""Ambient light is measured in lux. As the available ambient light increases, the
-{sensor_profile.display_name} is able to operate, with infinite runtime, at increasingly
-frequent duty-cycle rates."""
+    f"""The **sampling frequency** is the rate at which the {sensor_profile.display_name}
+takes and transmits a reading. As the intensity of the available ambient light (lux)
+increases, the {sensor_profile.display_name} is able to harvest increased amounts of
+energy that can be supplied as harvestable power to satisfy the power consumed by the
+{sensor_profile.display_name} when sampling. Increased lux levels provide increased
+harvestable power, which enables the sensor to increase its sampling frequency."""
+)
+
+st.markdown(
+    f"""When there is ample lux to operate in the plentiful energy harvesting zone at a
+given sampling frequency, then the {sensor_profile.display_name} is able to achieve
+infinite runtime and operate indefinitely at that sampling frequency."""
+)
+
+st.markdown(
+    f"""The performance figures$^{4}$ showcased below are dependent on the
+characteristics of the current {sensor_profile.display_name} hardware, notably the
+capacitor and supercapacitor size."""
 )
 
 lux_slider_increments = [50, 100, 105, 110, 115, 125, 150, 200, 300]
@@ -654,14 +636,15 @@ st.header("Continue the Exploration")
 st.markdown(
     """If this primer has piqued your interest and aided your understanding of energy
 harvesting sensors and systems, head over to [everactive.com](https://everactive.com/)
-to learn more about:"""
+to learn more about how you can adopt Everactive Edge technology to power your own
+solutions."""
 )
 
 st.markdown(
     "* [Our Batteryless Technology](https://everactive.com/batteryless-technology/)"
 )
 st.markdown(
-    "* [Real-World, Industrial IOT Solutions Using Our Technology](https://everactive.com/applications/)"
+    "* [Real-World, Industrial IoT Solutions Using Our Technology](https://everactive.com/applications/)"
 )
 st.markdown(
     "* [How You Can Start Developing with Everactive Edge](https://everactive.com/self-powered-iot-developers/)"
