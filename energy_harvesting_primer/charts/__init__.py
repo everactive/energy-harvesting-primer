@@ -8,5 +8,4 @@ from .power_operating_space import (
     power_operating_space,
 )
 from .power_profile import power_profile
-from .runtime_no_harvestable_energy import runtime_no_harvestable_energy
 from .runtime_variable_lux import runtime_variable_lux
