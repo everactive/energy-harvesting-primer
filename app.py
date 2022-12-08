@@ -428,59 +428,74 @@ effective and efficient energy harvesting sensors and systems."""
 
 st.markdown(
     """Consider a theoretical, ideal energy harvesting sensor that functions such that
-the power consumed (the load power) is equal to the power harvested. Further, this
-sensor is "always on": if it is available, it consumes power. The sensor has a **power
-floor**, which is the minimum amount of power that the sensor requires to remain
-available. For as long as it remains available, its power consumption is at least the
-power floor."""
+the power consumed (the load power) is equal to the power harvested. Further,
+this sensor is "**always-on**." If the sensor is available, then it continuously
+performs "always-on" operations that consume a baseline level of power. An example of
+an always-on operation might be listening for a wakeup signal to perform a task, or
+harvesting and storing energy. The always-on power is the minimum amount of power that
+the sensor requires to remain available. For as long as the sensor remains available,
+its power consumption is at least the always-on power."""
 )
 
-st.markdown(
-    """If the sensor does not have stored energy, it becomes unavailable once the
-harvestable power drops below the power floor. If the sensor has stored energy, it will
-continue to operate when the harvestable power drops below the power floor, until the
-stored energy is depleted to a volume that cannot provide sufficient power to meet the
-power floor."""
-)
-
-caption_text = """*The chart below uses a* log scale *for power, so that a very wide range
+caption_text = """*The chart below uses a* `log` scale *for power, so that a very wide range
 of power values&mdash;from one nanowatt (10$^{-9}$ watts) to one watt&mdash;can be
 displayed compactly.*"""
 
 st.caption(caption_text)
 
-example_pload_vs_pharv_chart = eh.charts.example_pload_vs_pharv()
-st.altair_chart(example_pload_vs_pharv_chart)
+example_load_power_vs_harvested_power_chart = (
+    eh.charts.example_load_power_vs_harvested_power()
+)
+st.altair_chart(example_load_power_vs_harvested_power_chart)
 
 st.markdown(
-    """Next, consider the operation of the sensor. It has a variety of modes that enable
-it to perform a collection of operations. Each mode requires differing levels of power
-at increasing duty cycles. When the sensor is fully active in a given mode, its load
-power is equal to the **active power** of that mode. When the sensor is partially active in
-the given mode, the load power varies between the sensor power floor and the mode active power.
-When the sensor is minimally active in the given mode, eventually the load power settles
-at the power floor."""
+    """Next, consider the modes of the ideal sensor. In addition to its always-on
+operations, the sensor has a variety of modes that enable it to perform other
+operations, such as taking readings and transmitting data. Work done in these modes is
+generally frequency- or event-driven, for example, taking a reading once a minute. The
+work done for a given mode consumes power in addition to the power consumed by the
+always-on operations. The power consumption of the sensor across different modes is
+plotted in the chart below."""
+)
+
+st.caption(
+    """The chart below plots the `log` of load power against the `log` of duty
+cycle. Recall that duty cycle is the ratio of time that the sensor is active (in the
+given mode); using `log(duty cycle)` normalizes the duty cycle between 0 and 1. As the
+`log(duty cycle)` nears 1, the sensor nears continuous activity for a given mode."""
 )
 
 example_power_modes_chart = eh.charts.example_power_modes()
 st.altair_chart(example_power_modes_chart)
 
 st.markdown(
+    """Each mode consumes varying levels of load power at increasing duty cycles. When
+the sensor is fully active in a given mode, its load power is equal to the **active
+power** of that mode. When the sensor is partially active in the given mode, the load
+power varies between the sensor always-on power and the mode active power. When the duty
+cycle is negligible and the sensor is minimally (or not) active in a given mode, the
+sensor load power settles at the always-on power."""
+)
+
+st.markdown(
     """The [energy harvesting zones](#fundamentals-of-energy-harvesting-sensors) that
-were covered earlier in the primer are relative to the power consumed by the sensor and
-can be calculated in terms of harvestable power. When the expected power consumption of
-a sensor is known, based on the desired operating mode and the rate at which the sensor
-operates in that mode, then one can define the real-world boundaries of the three zones:
+were covered earlier in the primer can now be defined and calculated based on the
+concepts covered in this section. The energy harvesting zones are calculated relative to
+load power of the sensor and can be defined in terms of harvestable power. When the
+expected power consumption of a sensor is known, based on the desired operating mode and
+the rate at which the sensor operates in that mode, then one can define the real-world
+boundaries of the three zones:
 * no energy harvesting
 * constrained energy harvesting
 * plentiful energy harvesting"""
 )
 
 st.markdown(
-    """In the interactive chart below, it is possible to experiment with changes to
-sensor mode of operation and floor power, and explore the effects of these variables
-on energy harvesting zones."""
+    """In the interactive chart below, experiment with changes to sensor mode of
+operation and always-on power and explore the effects of these variables on energy
+harvesting zones."""
 )
+st.markdown("")
 
 df_power_list = pd.DataFrame(
     [
@@ -492,27 +507,47 @@ df_power_list = pd.DataFrame(
         {"label": "1 milliwatt (1 mW)", "value": 1e-3},
         {"label": "10 milliwatts (10 mW)", "value": 1e-2},
         {"label": "100 milliwatts (100 mW)", "value": 1e-1},
-        {"label": "1 watt (1W)", "value": 1e0},
+        # {"label": "1 watt (1W)", "value": 1e0},
     ]
 )
 
 col1, col2 = st.columns([1, 1])
 
-selected_p_floor = col1.selectbox(
-    "Sensor Power Floor", options=df_power_list[df_power_list["value"] < 1], index=2
+selected_p_always_on = col1.selectbox(
+    "Sensor Always-On Power",
+    options=df_power_list[df_power_list["value"] < 1e-1],
+    index=2,
 )
-p_floor = df_power_list[df_power_list["label"] == selected_p_floor].iloc[0]["value"]
+p_always_on = df_power_list[df_power_list["label"] == selected_p_always_on].iloc[0][
+    "value"
+]
+
+len_active_power_list = len(df_power_list[df_power_list["value"] > p_always_on])
+active_power_index = (
+    len_active_power_list - 1 if ((len_active_power_list - 1) < 2) else 2
+)
 
 selected_p_active = col2.selectbox(
     "Sensor Mode of Operation: Active Power",
-    options=df_power_list[df_power_list["value"] > p_floor],
-    index=2,
+    options=df_power_list[df_power_list["value"] > p_always_on],
+    index=active_power_index,
 )
 p_active = df_power_list[df_power_list["label"] == selected_p_active].iloc[0]["value"]
 
-power_operating_space_chart = eh.charts.power_operating_space(p_floor, p_active)
+power_operating_space_chart = eh.charts.power_operating_space(p_always_on, p_active)
 st.altair_chart(power_operating_space_chart)
 
+st.markdown(
+    """Once the required harvested power is known for the three zones, given
+the range of expected sensor load power, it is possible to use the specifics of the
+energy harvesting sensor to convert required harvestable power to the required
+environmental conditions. For example, for a sensor equipped with a PV cell, one could
+use the operating characteristics of the PV cell to calculate the lux level required for
+a desired harvestable power. Similarly, if the lux levels of the sensor deployment
+environment are known and translated into available harvestable energy, it is possible
+to predict the performance of an energy harvesting sensor in that environment, based on
+the expected power consumption."""
+)
 
 ## The ENV+ Environmental Sensor ################################
 st.markdown("---")
@@ -586,9 +621,9 @@ st.header(
 
 st.markdown(
     f"""The {sensor_profile.manufacturer} {sensor_profile.display_name} is one example
-of a real-world energy harvesting sensor. The {sensor_profile.display_name} uses a PV
-cell to harvest light energy from the environment. Harvested energy is used by the
-sensor to sample; it takes environmental readings and transmits the data to the
+of a real-world, always-on energy harvesting sensor. The {sensor_profile.display_name}
+uses a PV cell to harvest light energy from the environment. Harvested energy is used by
+the sensor to sample; it takes environmental readings and transmits the data to the
 Everactive cloud via the Mini Evergateway."""
 )
 
