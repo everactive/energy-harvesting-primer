@@ -10,7 +10,7 @@ import energy_harvesting_primer.utils as utils
 color = palette.ColorPalette()
 
 ZONE_1 = "No Energy Harvesting"
-ZONE_2 = "Constrained Energy Harvesting"
+ZONE_2 = "Limited Energy Harvesting"
 ZONE_3 = "Plentiful Energy Harvesting"
 
 TITLE_PADDING = 12
@@ -153,6 +153,7 @@ def example_power_modes() -> alt.LayerChart:
     chart_height = 300
     chart_width = 350
     legend_size = 100
+    unselected_opacity = 0.3
 
     min_duty_cycle = 1e-6
     min_power = 1e-9
@@ -166,34 +167,79 @@ def example_power_modes() -> alt.LayerChart:
     }
 
     mode_power_at_duty_cycle = []
+    always_on_intersects = []
 
-    for duty_cycle_power in range(-6, 1):
-        duty_cycle = 10**duty_cycle_power
+    for mode in mode_profiles.keys():
+        delta_log_y = math.log(mode_profiles[mode]["power_active"]) - math.log(
+            min_power
+        )
+        delta_log_x = math.log(1) - math.log(mode_profiles[mode]["min_duty_cycle"])
+        slope = delta_log_y / delta_log_x
 
-        for mode in mode_profiles.keys():
-            delta_log_y = math.log(mode_profiles[mode]["power_active"]) - math.log(
-                min_power
-            )
-            delta_log_x = math.log(1) - math.log(mode_profiles[mode]["min_duty_cycle"])
-            slope = delta_log_y / delta_log_x
+        intersect = (always_on_power / mode_profiles[mode]["power_active"]) ** (
+            1 / slope
+        )
 
+        always_on_intersects.extend(
+            [
+                {
+                    "x": min_duty_cycle,
+                    "x2": intersect,
+                    "y": always_on_power,
+                    "mode": f"Mode {mode}",
+                    "dashed": "no",
+                },
+                {
+                    "x": intersect,
+                    "x2": 1,
+                    "y": always_on_power,
+                    "mode": f"Mode {mode}",
+                    "dashed": "yes",
+                },
+            ]
+        )
+
+        for duty_cycle in np.logspace(-6, 0, num=1000):
             if duty_cycle >= mode_profiles[mode]["min_duty_cycle"]:
                 power = mode_profiles[mode]["power_active"] * math.pow(
                     duty_cycle, slope
                 )
+
+                if power < always_on_power:
+                    chart_position = "below active power"
+                else:
+                    chart_position = "above active power"
+
                 mode_power_at_duty_cycle.append(
-                    {"mode": f"Mode {mode}", "duty_cycle": duty_cycle, "power": power}
+                    {
+                        "mode": f"Mode {mode}",
+                        "duty_cycle": duty_cycle,
+                        "power": power,
+                        "chart": chart_position,
+                    }
                 )
 
     df_modes = pd.DataFrame(mode_power_at_duty_cycle)
+    df_always_on = pd.DataFrame(always_on_intersects)
+
+    color_domain = ["Mode 1", "Mode 2", "Mode 3"]
 
     color_scale = alt.Scale(
-        domain=["Mode 1", "Mode 2", "Mode 3"],
-        range=[color.violet(), color.dark_teal(), color.midnight()],
+        domain=color_domain,
+        range=[color.violet(), color.dark_teal(), color.midnight(80)],
     )
 
-    base_chart = (
-        alt.Chart(df_modes)
+    color_scale_always_on = alt.Scale(
+        domain=color_domain,
+        range=[color.charcoal(), color.charcoal(), color.charcoal()],
+    )
+
+    selection = alt.selection_single(
+        fields=["mode"], bind="legend", init={"mode": "Mode 1"}
+    )
+
+    power_curve_above_active_power = (
+        alt.Chart(df_modes[df_modes["chart"] == "above active power"])
         .mark_line()
         .encode(
             alt.X(
@@ -217,13 +263,54 @@ def example_power_modes() -> alt.LayerChart:
             color=alt.Color(
                 "mode", legend=alt.Legend(title="Sensor Mode"), scale=color_scale
             ),
+            opacity=alt.condition(
+                selection, alt.value(1), alt.value(unselected_opacity)
+            ),
+            tooltip=alt.value(None),
+        )
+    )
+
+    power_curve_below_active_power = (
+        alt.Chart(df_modes[df_modes["chart"] == "below active power"])
+        .mark_line(strokeDash=[3, 1], opacity=0.5)
+        .encode(
+            alt.X(
+                "duty_cycle",
+                axis=alt.Axis(
+                    title="log (Duty Cycle)",
+                    titlePadding=TITLE_PADDING,
+                    labelExpr=DUTY_CYCLE_TICK_LABELS,
+                ),
+                scale=alt.Scale(type="log", domain=[min_duty_cycle, 1]),
+            ),
+            alt.Y(
+                "power",
+                axis=alt.Axis(
+                    title=["log (Load Power)", "(watts)"],
+                    titlePadding=TITLE_PADDING,
+                    labelExpr=SIMPLE_POWER_TICK_LABELS,
+                ),
+                scale=alt.Scale(type="log", domain=[min_power, 1]),
+            ),
+            color=alt.Color("mode", legend=None, scale=color_scale),
+            opacity=alt.condition(
+                selection, alt.value(1), alt.value(unselected_opacity)
+            ),
         )
     )
 
     always_on_rule = (
-        alt.Chart(pd.DataFrame([{"y": always_on_power}]))
-        .mark_rule(strokeDash=[3, 1], strokeWidth=1, color=color.charcoal())
-        .encode(y="y", tooltip=alt.value(None))
+        alt.Chart(df_always_on)
+        .mark_line(strokeWidth=1.6)
+        .encode(
+            x="x",
+            x2="x2",
+            y="y",
+            color=alt.Color("mode", legend=None, scale=color_scale_always_on),
+            opacity=alt.condition(selection, alt.value(1), alt.value(0)),
+            strokeDash=alt.StrokeDash("dashed", legend=None, sort=["no", "yes"]),
+            tooltip=alt.value(None),
+        )
     )
 
     df_p_active = pd.DataFrame(
@@ -236,7 +323,15 @@ def example_power_modes() -> alt.LayerChart:
     p_active_circles = (
         alt.Chart(df_p_active)
         .mark_circle(size=50, opacity=1)
-        .encode(alt.X("x"), alt.Y("power_active"), color=alt.Color("mode", legend=None))
+        .encode(
+            alt.X("x"),
+            alt.Y("power_active"),
+            color=alt.Color("mode", legend=None, scale=color_scale),
+            opacity=alt.condition(
+                selection, alt.value(1), alt.value(unselected_opacity)
+            ),
+            tooltip=alt.value(None),
+        )
     )
 
     p_active_text = (
@@ -245,14 +340,33 @@ def example_power_modes() -> alt.LayerChart:
         .encode(
             alt.X("x"),
             alt.Y("power_active"),
-            color=alt.Color("mode", legend=None),
+            color=alt.Color("mode", legend=None, scale=color_scale),
             text="label",
+            opacity=alt.condition(
+                selection, alt.value(1), alt.value(unselected_opacity)
+            ),
+            tooltip=alt.value(None),
         )
     )
 
+    always_on_power_text = (
+        alt.Chart(pd.DataFrame([{"x": 0, "y": always_on_power, "text": "P always-on"}]))
+        .mark_text(color=color.charcoal(), align="left", dx=5, dy=-10, lineBreak="\n")
+        .encode(x="x", y="y", text="text", tooltip=alt.value(None))
+    )
+
     return (
-        alt.layer(base_chart, p_active_circles, always_on_rule, p_active_text)
+        alt.layer(
+            power_curve_above_active_power,
+            power_curve_below_active_power,
+            p_active_circles,
+            always_on_rule,
+            p_active_text,
+            always_on_power_text,
+        )
+        .add_selection(selection)
         .configure_legend(labelLimit=legend_size)
+        .resolve_scale(color="independent")
         .properties(height=chart_height, width=chart_width + legend_size)
     )
 

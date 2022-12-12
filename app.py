@@ -218,7 +218,7 @@ st.markdown(
 photovoltaic (PV) cell, to convert available light into electricity. The most critical
 environment profile characteristic for a PV cell-enabled sensor is the level of
 intensity of the available ambient light, which is measured in lux. The environment lux
-level determines whether a sensor operates in a plentiful, limited, or no energy
+level contributes to whether a sensor operates in a plentiful, limited, or no energy
 harvesting zone and has a direct impact on sensor availability and runtime."""
 )
 
@@ -252,7 +252,7 @@ of lux may significantly impact energy harvesting sensor availability and runtim
 Although light meter smartphone apps exist, their accuracy does not approach that of
 dedicated light meters, particularly when taking readings in low light conditions.
 Further, there are a variety of factors that affect the intensity of light that a PV
-cell can detect in a given environment and position within the environment, including:
+cell can detect in a given environment and position within that environment, including:
 the distance from a light source, the type of light source, and the position of the
 light source relative to the PV cell."""
 )
@@ -264,7 +264,7 @@ environment, and how the ambient light of the environment varies over time. Exce
 indoor settings with continuous, artificial-only lighting, environment ambient light
 will change depending on a variety of factors: for instance, the time of day, time of
 year, the weather, or variable obstruction of a light source. Acceptable sensor
-availability becomes a question of whether the environment profile supports the sensor
+availability and performance becomes a question of whether the environment profile supports the sensor
 harvesting and storing enough energy during well-lit periods such that it can run in the
 absence of light until light is restored, for example, overnight."""
 )
@@ -451,22 +451,12 @@ st.altair_chart(example_load_power_vs_harvested_power_chart)
 st.markdown(
     """Next, consider the modes of the ideal sensor. In addition to its always-on
 operations, the sensor has a variety of modes that enable it to perform other
-operations, such as taking readings and transmitting data. Work done in these modes is
+operations, such as taking readings or transmitting data. Work done in these modes is
 generally frequency- or event-driven, for example, taking a reading once a minute. The
 work done for a given mode consumes power in addition to the power consumed by the
 always-on operations. The power consumption of the sensor across different modes is
 plotted in the chart below."""
 )
-
-st.caption(
-    """The chart below plots the `log` of load power against the `log` of duty
-cycle. Recall that duty cycle is the ratio of time that the sensor is active (in the
-given mode); using `log(duty cycle)` normalizes the duty cycle between 0 and 1. As the
-`log(duty cycle)` nears 1, the sensor nears continuous activity for a given mode."""
-)
-
-example_power_modes_chart = eh.charts.example_power_modes()
-st.altair_chart(example_power_modes_chart)
 
 st.markdown(
     """Each mode consumes varying levels of load power at increasing duty cycles. When
@@ -477,23 +467,35 @@ cycle is negligible and the sensor is minimally (or not) active in a given mode,
 sensor load power settles at the always-on power."""
 )
 
+st.caption(
+    """The chart below plots the `log` of load power against the `log` of duty
+cycle. Recall that duty cycle is the ratio of time that the sensor is active (in the
+given mode); using `log(duty cycle)` normalizes the duty cycle between 0 and 1. As the
+`log(duty cycle)` nears 1, the sensor nears continuous activity for a given mode. Click
+on the mode name in the legend to isolate its power curve on the chart."""
+)
+
+example_power_modes_chart = eh.charts.example_power_modes()
+st.altair_chart(example_power_modes_chart)
+
+
 st.markdown(
     """The [energy harvesting zones](#fundamentals-of-energy-harvesting-sensors) that
 were covered earlier in the primer can now be defined and calculated based on the
-concepts covered in this section. The energy harvesting zones are calculated relative to
+concepts covered in this section. These energy harvesting zones are calculated relative to
 load power of the sensor and can be defined in terms of harvestable power. When the
 expected power consumption of a sensor is known, based on the desired operating mode and
 the rate at which the sensor operates in that mode, then one can define the real-world
 boundaries of the three zones:
-* no energy harvesting
-* constrained energy harvesting
-* plentiful energy harvesting"""
+1. Plentiful energy harvesting
+2. Limited energy harvesting
+3. No energy harvesting"""
 )
 
 st.markdown(
     """In the interactive chart below, experiment with changes to sensor mode of
 operation and always-on power and explore the effects of these variables on energy
-harvesting zones."""
+harvesting zones, for the ideal sensor."""
 )
 st.markdown("")
 
@@ -544,9 +546,9 @@ energy harvesting sensor to convert required harvestable power to the required
 environmental conditions. For example, for a sensor equipped with a PV cell, one could
 use the operating characteristics of the PV cell to calculate the lux level required for
 a desired harvestable power. Similarly, if the lux levels of the sensor deployment
-environment are known and translated into available harvestable energy, it is possible
-to predict the performance of an energy harvesting sensor in that environment, based on
-the expected power consumption."""
+environment were known and translated into available harvestable power, it would be
+possible to predict the availability and performance of an energy harvesting sensor in
+that environment, based on its expected power consumption."""
 )
 
 ## The ENV+ Environmental Sensor ################################
@@ -599,7 +601,7 @@ supercapacitor."""
 st.markdown(
     f"""When the {sensor_profile.display_name} takes an environmental reading, it
 transmits the reading as a data packet to the Mini Evergateway, which uses a
-virtual gateway running on the developer's computer to send the reading to the
+virtual gateway running on the user's computer to send the reading to the
 Everactive cloud. The reading data is then accessible via the Everactive Developer
 Console, the Everactive API, or a webhook connection."""
 )
@@ -624,14 +626,14 @@ st.markdown(
 of a real-world, always-on energy harvesting sensor. The {sensor_profile.display_name}
 uses a PV cell to harvest light energy from the environment. Harvested energy is used by
 the sensor to sample; it takes environmental readings and transmits the data to the
-Everactive cloud via the Mini Evergateway."""
+Everactive cloud (via the Mini Evergateway)."""
 )
 
 st.markdown(
     f"""The **sampling frequency** is the rate at which the {sensor_profile.display_name}
 takes and transmits a reading. As the intensity of the available ambient light (lux)
 increases, the {sensor_profile.display_name} is able to harvest increased amounts of
-energy that can be supplied as harvestable power to satisfy the power consumed by the
+energy that are used for harvestable power to satisfy the power consumed by the
 {sensor_profile.display_name} when sampling. Increased lux levels provide increased
 harvestable power, which enables the sensor to increase its sampling frequency."""
 )

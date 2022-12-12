@@ -68,6 +68,7 @@ def power_profile(
                 "t_min",
                 axis=alt.Axis(
                     title="Time (min)",
+                    titlePadding=12,
                     labelExpr=min_tick_labels,
                 ),
                 scale=alt.Scale(domain=[0, MAX_TIME_MINUTES]),
@@ -75,7 +76,7 @@ def power_profile(
             alt.Y(
                 "power",
                 axis=alt.Axis(
-                    title="Power Usage",
+                    title="Power Consumption (watts)",
                     titlePadding=12,
                     labelExpr=f'datum.value + " {utils.MU}W"',
                 ),
@@ -83,12 +84,13 @@ def power_profile(
             ),
             color=alt.Color(
                 "mode",
-                legend=alt.Legend(title="Power Usage", orient=legend_orientation),
+                legend=alt.Legend(title="Power Consumption", orient=legend_orientation),
                 scale=alt.Scale(
                     domain=["Sensor Power"],
                     range=[color.chartreuse()],
                 ),
             ),
+            tooltip=alt.value(None),
         )
     )
 
@@ -96,7 +98,7 @@ def power_profile(
         alt.Chart(
             pd.DataFrame({"y": [average_load_power], "mode": "Average Load Power"})
         )
-        .mark_rule(strokeDash=[3, 1], strokeWidth=1)
+        .mark_rule(strokeDash=[5, 1], strokeWidth=1)
         .encode(
             y="y",
             color=alt.Color(
@@ -107,6 +109,7 @@ def power_profile(
                     range=[color.charcoal()],
                 ),
             ),
+            tooltip=alt.value(None),
         )
     )
 
@@ -132,12 +135,13 @@ def power_profile(
             alt.X("x", scale=alt.Scale(domain=[0, MAX_TIME_MINUTES])),
             alt.Y("y", scale=alt.Scale(domain=[0, MAX_POWER])),
             text="label",
+            tooltip=alt.value(None),
         )
     )
 
     chart = (
         alt.layer(base_chart, avg_power_load_line, text_annotations)
-        .resolve_scale(color="independent")
+        .resolve_scale(color="independent", strokeDash="independent")
         .properties(height=CHART_HEIGHT, width=CHART_WIDTH)
     )
 
