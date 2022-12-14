@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "energy-harvesting-primer"
-version = "0.0.2"
+version = "0.1.0"
 description = "Everactive Energy Harvesting Primer"
 authors = ["Rachel House <rachel.house@everactive.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.9.7 || >3.9.7,<4.0"
 pandas = "^1.5.1"
-streamlit = "^1.14.0"
+streamlit = "^1.15.2"
 altair = "^4.2.0"
 
 [tool.poetry.group.dev.dependencies]
