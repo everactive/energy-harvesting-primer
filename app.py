@@ -78,7 +78,7 @@ these types of systems."""
 
 st.markdown(
     f"""We will also showcase the [{sensor_profile.manufacturer}
-{sensor_profile.display_name}](#the-everactive-environmental-batteryless-iot-evaluation-kit)
+{sensor_profile.display_name}](#the-everactive-environmental-batteryless-iot-evaluation-kit-and-eversensor)
 as an example of a real-world energy harvesting sensor node."""
 )
 
