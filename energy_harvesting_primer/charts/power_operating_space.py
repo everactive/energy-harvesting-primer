@@ -85,11 +85,11 @@ def example_load_power_vs_harvested_power() -> alt.LayerChart:
                 }
             )
             power_values.append(
-                {"p_harvested": watts, "p_load": watts, "label": "Ideal Operation"}
+                {"p_harvested": watts, "p_load": watts, "label": "Balanced Operation"}
             )
         else:
             power_values.append(
-                {"p_harvested": watts, "p_load": watts, "label": "Ideal Operation"}
+                {"p_harvested": watts, "p_load": watts, "label": "Balanced Operation"}
             )
 
     df_power = pd.DataFrame(power_values)
@@ -119,7 +119,7 @@ def example_load_power_vs_harvested_power() -> alt.LayerChart:
             strokeDash=alt.StrokeDash(
                 "label",
                 legend=alt.Legend(title="Sensor Power Usage"),
-                sort=["Ideal Operation", "Below Always-On Power"],
+                sort=["Balanced Operation", "Below Always-On Power"],
             ),
             tooltip=alt.value(None),
         )
@@ -395,7 +395,7 @@ def power_operating_space(
         power_values.append({"p_harvested": watt_value, "p_load": watt_value})
 
     df_power = pd.DataFrame(power_values)
-    df_power["label"] = "Ideal Operation"
+    df_power["label"] = "Balanced Operation"
 
     df_p_load_zones = pd.DataFrame(
         [
@@ -640,7 +640,7 @@ def power_operating_space(
                 "label",
                 legend=alt.Legend(title="Sensor Power Usage"),
                 scale=alt.Scale(
-                    domain=["Ideal Operation"],
+                    domain=["Balanced Operation"],
                     range=[color.dark_teal()],
                 ),
             ),

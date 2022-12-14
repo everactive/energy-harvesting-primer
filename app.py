@@ -200,6 +200,12 @@ However, runtime is ultimately finite because the sensor will eventually run out
 energy in its bank account."""
 )
 
+st.markdown(
+    """Most real-world deployment contexts will not consist of only one energy
+harvesting zone. Instead, a sensor will transition between the different zones as the
+environment, and how much energy is available, changes over time."""
+)
+
 
 ## Environment Profiles for Energy Harvesting #######################
 st.markdown("---")
@@ -214,12 +220,14 @@ environment in which the sensor is deployed."""
 )
 
 st.markdown(
-    f"""Sensors that harvest light energy from the environment use a solar cell, or
-photovoltaic (PV) cell, to convert available light into electricity. The most critical
-environment profile characteristic for a PV cell-enabled sensor is the level of
-intensity of the available ambient light, which is measured in lux. The environment lux
-level contributes to whether a sensor operates in a plentiful, limited, or no energy
-harvesting zone and has a direct impact on sensor availability and runtime."""
+    f"""Light energy is ubiquitous, and will serve as the example target energy type
+used within this primer. Sensors that harvest light energy from the environment use a
+solar cell, or photovoltaic (PV) cell, to convert available light into electricity. The
+most critical environment profile characteristic for a PV cell-enabled sensor is the
+level of intensity of the available ambient light, which is measured in lux. The
+environment lux level contributes to whether a sensor operates in a plentiful, limited,
+or no energy harvesting zone and has a direct impact on sensor availability and
+runtime."""
 )
 
 st.markdown(
@@ -427,14 +435,14 @@ effective and efficient energy harvesting sensors and systems."""
 )
 
 st.markdown(
-    """Consider a theoretical, ideal energy harvesting sensor that functions such that
-the power consumed (the load power) is equal to the power harvested. Further,
-this sensor is "**always-on**." If the sensor is available, then it continuously
-performs "always-on" operations that consume a baseline level of power. An example of
-an always-on operation might be listening for a wakeup signal to perform a task, or
-harvesting and storing energy. The always-on power is the minimum amount of power that
-the sensor requires to remain available. For as long as the sensor remains available,
-its power consumption is at least the always-on power."""
+    """Consider a theoretical energy harvesting sensor that functions with balanced
+operation, such that the power consumed (the load power) is equal to the power
+harvested. Further, this sensor is "**always-on**." If the sensor is available, then it
+continuously performs "always-on" operations that consume a baseline level of power. An
+example of an always-on operation might be listening for a wakeup signal to perform a
+task, or harvesting and storing energy. The always-on power is the minimum amount of
+power that the sensor requires to remain available. For as long as the sensor remains
+available, its power consumption is at least the always-on power."""
 )
 
 caption_text = """*The chart below uses a* `log` scale *for power, so that a very wide range
@@ -449,7 +457,7 @@ example_load_power_vs_harvested_power_chart = (
 st.altair_chart(example_load_power_vs_harvested_power_chart)
 
 st.markdown(
-    """Next, consider the modes of the ideal sensor. In addition to its always-on
+    """Next, consider the modes of the theoretical sensor. In addition to its always-on
 operations, the sensor has a variety of modes that enable it to perform other
 operations, such as taking readings or transmitting data. Work done in these modes is
 generally frequency- or event-driven, for example, taking a reading once a minute. The
@@ -495,7 +503,7 @@ boundaries of the three zones:
 st.markdown(
     """In the interactive chart below, experiment with changes to sensor mode of
 operation and always-on power and explore the effects of these variables on energy
-harvesting zones, for the ideal sensor."""
+harvesting zones, for the theoretical sensor."""
 )
 st.markdown("")
 
