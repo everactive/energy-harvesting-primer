@@ -49,19 +49,21 @@ def runtime_variable_lux(
         duty_cycle_seconds = x[duty_cycle_name]
 
         if duty_cycle_seconds == "continuous":
-            readings_per_year = (365 * 24 * 60 * 60) / 4
-        else:
-            readings_per_year = (365 * 24 * 60 * 60) / int(duty_cycle_seconds)
+            duty_cycle_seconds = 4
+
+        readings_per_year = (365 * 24 * 60 * 60) / int(duty_cycle_seconds)
+
+        mb_per_year = round(
+            readings_per_year * packet_size_bytes * (1 / bytes_in_mb), 3
+        )
 
         duty_cycle_seconds_to_name.append(
             {
                 "duty_cycle_name": duty_cycle_name,
                 "duty_cycle_seconds": duty_cycle_seconds,
                 "required_lux": sensor_profile.get_required_lux(x[duty_cycle_name]),
-                "readings_per_year": readings_per_year,
-                "mb_per_year": readings_per_year
-                * packet_size_bytes
-                * (1 / bytes_in_mb),
+                "readings_per_year": int(readings_per_year),
+                "mb_per_year": mb_per_year,
             }
         )
 
@@ -69,7 +71,8 @@ def runtime_variable_lux(
         x["duty_cycle_name"] for x in list(reversed(duty_cycle_seconds_to_name))
     ]
 
-    df = pd.DataFrame.from_dict(duty_cycle_seconds_to_name)
+    df = pd.DataFrame(duty_cycle_seconds_to_name)
+
     df["display_readings_per_year"] = df["readings_per_year"].apply(
         lambda x: f"{human_format(x)}"
     )
