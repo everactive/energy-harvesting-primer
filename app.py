@@ -194,7 +194,7 @@ state due to lack of further deposits of harvested energy.
 
 When energy-constrained, a sensor has two options to increase its remaining runtime:
 * Decrease the frequency of its energy withdrawals by reducing how often it performs work
-* Decrease how much energy it withdraws for each that operation it performs
+* Decrease how much energy it withdraws for each operation that it performs
 
 However, runtime is ultimately finite because the sensor will eventually run out of
 energy in its bank account."""
@@ -353,13 +353,14 @@ In idle mode, the sensor waits to receive a request, consuming minimal power. On
 request for a sample arrives, the sensor exits idle mode and enters active mode. While
 in active mode, the sensor takes and transmits a reading, consuming more power than when
 previously in idle mode. When its active sampling operations are completed, the sensor
-returns to idle mode and low power usage, until it receives its next reading request.
+returns to idle mode and lowers power usage, until it receives its next reading request.
 These transitions are illustrated in the chart below."""
 )
 
 col1, col2, col3, col4 = st.columns([1, 1, 1.25, 2])
+
 idle_power = col1.number_input(
-    f"Idle Power ({eh.utils.MU}W)", min_value=10, max_value=60, step=1, value=10
+    f"Idle Power ({eh.utils.MU}W)", min_value=10, max_value=59, step=1, value=10
 )
 
 active_power = col2.number_input(
@@ -523,28 +524,117 @@ df_power_list = pd.DataFrame(
 
 col1, col2 = st.columns([1, 1])
 
-selected_p_always_on = col1.selectbox(
+# Default always on power to 1 uW and set available powers to choose from.
+if "always_on_power_label" not in st.session_state:
+    st.session_state.always_on_power_label = "1 microwatt (1 \u03bcW)"
+
+    st.session_state.always_on_power_options = df_power_list[
+        df_power_list["value"] < 1e-1
+    ]
+    st.session_state.p_always_on = df_power_list[
+        df_power_list["label"] == st.session_state.always_on_power_label
+    ].iloc[0]["value"]
+
+# Default active power to 1 mW and remove selectable powers from selectbox options
+# based on always on power.
+if "active_power_label" not in st.session_state:
+    st.session_state.active_power_label = "1 milliwatt (1 mW)"
+
+    st.session_state.p_active = df_power_list[
+        df_power_list["label"] == st.session_state.active_power_label
+    ].iloc[0]["value"]
+
+    st.session_state.active_power_options = (
+        df_power_list[df_power_list["value"] > st.session_state.p_always_on]
+        .copy()
+        .reset_index(drop=True)
+    )
+
+    st.session_state.active_power_idx = int(
+        st.session_state.active_power_options[
+            st.session_state.active_power_options["label"]
+            == st.session_state.active_power_label
+        ].index[0]
+    )
+
+
+def update_sensor_always_on_power():
+    """Callback for updating sensor always on power and active power based on input to
+    always on power selectbox."""
+    st.session_state.p_always_on = df_power_list[
+        df_power_list["label"] == st.session_state.always_on_power_label
+    ].iloc[0]["value"]
+
+    if st.session_state.p_always_on < st.session_state.p_active:
+        # Active power stays the same, just dropdown options change.
+        st.session_state.active_power_options = (
+            df_power_list[df_power_list["value"] > st.session_state.p_always_on]
+            .copy()
+            .reset_index(drop=True)
+        )
+
+        st.session_state.active_power_idx = int(
+            st.session_state.active_power_options[
+                st.session_state.active_power_options["label"]
+                == st.session_state.active_power_label
+            ].index[0]
+        )
+
+    else:
+        # New always on power is equal or greater than current active power, update
+        # active power to 1 step above new always on power.
+        current_always_on_power_idx = int(
+            df_power_list[
+                df_power_list["label"] == st.session_state.always_on_power_label
+            ].index[0]
+        )
+
+        st.session_state.active_power_label = df_power_list.iloc[
+            current_always_on_power_idx + 1
+        ]["label"]
+        st.session_state.p_active = df_power_list[
+            df_power_list["label"] == st.session_state.active_power_label
+        ].iloc[0]["value"]
+
+        st.session_state.active_power_options = (
+            df_power_list[df_power_list["value"] > st.session_state.p_always_on]
+            .copy()
+            .reset_index(drop=True)
+        )
+
+        st.session_state.active_power_idx = int(
+            st.session_state.active_power_options[
+                st.session_state.active_power_options["label"]
+                == st.session_state.active_power_label
+            ].index[0]
+        )
+
+
+def update_sensor_active_power():
+    """Callback for updating sensor active power based on active power selectbox input."""
+    st.session_state.p_active = df_power_list[
+        df_power_list["label"] == st.session_state.active_power_label
+    ].iloc[0]["value"]
+
+
+col1.selectbox(
     "Sensor Always-On Power",
-    options=df_power_list[df_power_list["value"] < 1e-1],
-    index=2,
-)
-p_always_on = df_power_list[df_power_list["label"] == selected_p_always_on].iloc[0][
-    "value"
-]
-
-len_active_power_list = len(df_power_list[df_power_list["value"] > p_always_on])
-active_power_index = (
-    len_active_power_list - 1 if ((len_active_power_list - 1) < 2) else 2
+    options=st.session_state.always_on_power_options,
+    key="always_on_power_label",
+    on_change=update_sensor_always_on_power,
 )
 
-selected_p_active = col2.selectbox(
+col2.selectbox(
     "Sensor Mode of Operation: Active Power",
-    options=df_power_list[df_power_list["value"] > p_always_on],
-    index=active_power_index,
+    options=st.session_state.active_power_options,
+    index=st.session_state.active_power_idx,
+    key="active_power_label",
+    on_change=update_sensor_active_power,
 )
-p_active = df_power_list[df_power_list["label"] == selected_p_active].iloc[0]["value"]
 
-power_operating_space_chart = eh.charts.power_operating_space(p_always_on, p_active)
+power_operating_space_chart = eh.charts.power_operating_space(
+    st.session_state.p_always_on, st.session_state.p_active
+)
 st.altair_chart(power_operating_space_chart)
 
 st.markdown(
@@ -658,15 +748,9 @@ characteristics of the current {sensor_profile.display_name} hardware, notably t
 capacitor and supercapacitor size."""
 )
 
-lux_slider_increments = [50, 100, 105, 110, 115, 125, 150, 200, 300]
-df_lux_values = pd.DataFrame(
-    [{"display_value": f"{x} lux", "lux": x} for x in lux_slider_increments]
-)
-
-selected_lux = st.select_slider("Ambient Light", df_lux_values, value="100 lux")
-harvestable_lux = df_lux_values[df_lux_values["display_value"] == selected_lux].iloc[0][
-    "lux"
-]
+lux_slider_increments = [f"{x} lux" for x in [100, 105, 110, 115, 125, 150, 200, 300]]
+selected_lux = st.select_slider("Ambient Light", lux_slider_increments, value="100 lux")
+harvestable_lux = int(re.search(r"(\d+) lux", selected_lux).group(1))
 
 runtime_variable_lux_chart = eh.charts.runtime_variable_lux(
     sensor_profile, harvestable_lux
