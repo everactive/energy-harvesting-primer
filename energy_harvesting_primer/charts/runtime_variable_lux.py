@@ -45,36 +45,36 @@ def runtime_variable_lux(
     minute = [{"1 minute": 60}]
     minutes = [{f"{x} minutes": x * 60} for x in range(2, 21, 1)]
 
-    duty_cycle_seconds_to_name = []
+    sampling_rate_seconds_to_name = []
 
     for x in [*continuous, *seconds, *minute, *minutes]:
-        duty_cycle_name = list(x.keys())[0]
-        duty_cycle_seconds = x[duty_cycle_name]
+        sampling_rate_name = list(x.keys())[0]
+        sampling_rate_seconds = x[sampling_rate_name]
 
-        if duty_cycle_seconds == "continuous":
-            duty_cycle_seconds = 4
+        if sampling_rate_seconds == "continuous":
+            sampling_rate_seconds = 4
 
-        readings_per_year = (365 * 24 * 60 * 60) / int(duty_cycle_seconds)
+        readings_per_year = (365 * 24 * 60 * 60) / int(sampling_rate_seconds)
 
         mb_per_year = round(
             readings_per_year * packet_size_bytes * (1 / bytes_in_mb), 3
         )
 
-        duty_cycle_seconds_to_name.append(
+        sampling_rate_seconds_to_name.append(
             {
-                "duty_cycle_name": duty_cycle_name,
-                "duty_cycle_seconds": duty_cycle_seconds,
-                "required_lux": sensor_profile.get_required_lux(x[duty_cycle_name]),
+                "sampling_rate_name": sampling_rate_name,
+                "sampling_rate_seconds": sampling_rate_seconds,
+                "required_lux": sensor_profile.get_required_lux(x[sampling_rate_name]),
                 "readings_per_year": int(readings_per_year),
                 "mb_per_year": mb_per_year,
             }
         )
 
-    duty_cycle_sort_order = [
-        x["duty_cycle_name"] for x in list(reversed(duty_cycle_seconds_to_name))
+    sampling_rate_sort_order = [
+        x["sampling_rate_name"] for x in list(reversed(sampling_rate_seconds_to_name))
     ]
 
-    df = pd.DataFrame(duty_cycle_seconds_to_name)
+    df = pd.DataFrame(sampling_rate_seconds_to_name)
 
     df["display_readings_per_year"] = df["readings_per_year"].apply(
         lambda x: f"{_human_readable_format(x)}"
@@ -119,7 +119,7 @@ def runtime_variable_lux(
         type="single",
         nearest=True,
         on="mouseover",
-        fields=["duty_cycle_name"],
+        fields=["sampling_rate_name"],
         empty="none",
     )
 
@@ -129,14 +129,14 @@ def runtime_variable_lux(
             .mark_rect()
             .encode(
                 alt.X(
-                    "duty_cycle_name",
+                    "sampling_rate_name",
                     axis=alt.Axis(
                         title=f"{sensor_profile.display_name} Sampling Frequency",
                         titlePadding=12,
                         labelAngle=-35,
                         labelExpr=tick_label_expr,
                     ),
-                    sort=duty_cycle_sort_order,
+                    sort=sampling_rate_sort_order,
                 ),
                 alt.Y("y", axis=None),
                 alt.Color(
@@ -145,7 +145,7 @@ def runtime_variable_lux(
                     scale=color_scale,
                 ),
                 tooltip=[
-                    alt.Tooltip("duty_cycle_name", title="Sampling Frequency"),
+                    alt.Tooltip("sampling_rate_name", title="Sampling Frequency"),
                     alt.Tooltip("ambient_light", title="Ambient Light"),
                     alt.Tooltip("infinite_runtime", title="Infinite Runtime"),
                     alt.Tooltip("display_readings_per_year", title="Readings Per Year"),
@@ -163,7 +163,7 @@ def runtime_variable_lux(
         alt.Chart(df)
         .mark_line(strokeWidth=5)
         .encode(
-            alt.X("duty_cycle_name", axis=None, sort=duty_cycle_sort_order),
+            alt.X("sampling_rate_name", axis=None, sort=sampling_rate_sort_order),
             alt.Y("readings_per_year", axis=None),
             alt.Color(
                 "operation:N",
@@ -175,7 +175,7 @@ def runtime_variable_lux(
 
     df_data_box = (
         df[df["operation"] == "Infinite Runtime"]
-        .sort_values("duty_cycle_seconds")
+        .sort_values("sampling_rate_seconds")
         .head(1)
     )
     df_data_box["label"] = df_data_box.apply(
@@ -187,7 +187,7 @@ def runtime_variable_lux(
         alt.Chart(df_data_box)
         .mark_circle(size=600, opacity=1)
         .encode(
-            alt.X("duty_cycle_name", axis=None, sort=duty_cycle_sort_order),
+            alt.X("sampling_rate_name", axis=None, sort=sampling_rate_sort_order),
             alt.Y("readings_per_year", axis=None),
             alt.Color(
                 "operation:N",
@@ -200,7 +200,7 @@ def runtime_variable_lux(
         alt.Chart(df_data_box)
         .mark_text(align="right", dx=-15, dy=-20, lineBreak="\n")
         .encode(
-            alt.X("duty_cycle_name", axis=None, sort=duty_cycle_sort_order),
+            alt.X("sampling_rate_name", axis=None, sort=sampling_rate_sort_order),
             text="label",
         )
     )
