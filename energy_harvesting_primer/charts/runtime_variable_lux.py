@@ -1,3 +1,6 @@
+"""Contains method to generate visual depicting the runtime of an energy harvesting
+sensor given its sampling rate and available lux."""
+
 import math
 
 import altair as alt
@@ -12,8 +15,8 @@ CHART_WIDTH = 500
 color = palette.ColorPalette()
 
 
-def human_format(x: int) -> str:
-    """Return a large number formatted human-friendly."""
+def _human_readable_format(x: int) -> str:
+    """Convert supplied large number to human-readable format."""
     units = ["", "K", "M", "G", "T", "P"]
     k = 1000.0
     magnitude = int(math.floor(math.log(x, k)))
@@ -23,15 +26,15 @@ def human_format(x: int) -> str:
 def runtime_variable_lux(
     sensor_profile: profiles.BaseSensorProfile, harvestable_lux: int
 ) -> alt.Chart:
-    """Assemble chart depicting sensor runtime at a range of sampling frequencies, given
-    a level of harvestable lux.
+    """Assemble visual depicting sensor runtime, as infinite or finite, at a range of
+    sampling frequencies, given a level of harvestable lux.
 
     Args:
         sensor_profile: Sensor profile object to use for energy/chart calculations
         harvestable_lux: Available light for energy harvesting, in lux
 
     Returns:
-        Altair chart object
+        Visual as Altair chart
     """
 
     packet_size_bytes = 55
@@ -74,7 +77,7 @@ def runtime_variable_lux(
     df = pd.DataFrame(duty_cycle_seconds_to_name)
 
     df["display_readings_per_year"] = df["readings_per_year"].apply(
-        lambda x: f"{human_format(x)}"
+        lambda x: f"{_human_readable_format(x)}"
     )
     df["display_data_volume_per_year"] = df["mb_per_year"].apply(
         lambda x: f"{round(x,1)} MB"

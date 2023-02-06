@@ -1,3 +1,11 @@
+"""Contains the main Streamlit app code and written content to run the Everactive Energy
+Harvesting Sensors 101 primer.
+
+Typical usage example:
+    # From the root directory of the energy-harvesting-primer repo:
+    poetry run streamlit run app.py
+"""
+
 import collections
 import re
 

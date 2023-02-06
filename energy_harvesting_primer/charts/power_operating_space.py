@@ -1,3 +1,6 @@
+"""Contains methods to generate visuals depicting the power operating space of an energy
+harvesting sensor."""
+
 import math
 
 import altair as alt
@@ -58,8 +61,8 @@ POWER_TICK_LABELS = f"""
 
 
 def example_load_power_vs_harvested_power() -> alt.LayerChart:
-    """Generate example chart depicting load power vs. harvested power in an ideal
-    sensor."""
+    """Generate a visual depicting load power vs. harvested power in an energy
+    harvesting sensor with ideal balanced operation and return as an Altair chart."""
 
     chart_size = 350
     legend_size = 150
@@ -147,8 +150,8 @@ def example_load_power_vs_harvested_power() -> alt.LayerChart:
 
 
 def example_power_modes() -> alt.LayerChart:
-    """Generate example chart depicting the power required for different sensor modes of
-    operation at varying duty cycles."""
+    """Generate a visual depicting the power required for different energy harvesting
+    sensor modes of operation at varying duty cycles, and return as an Altair chart."""
 
     chart_height = 300
     chart_width = 350
@@ -374,16 +377,16 @@ def example_power_modes() -> alt.LayerChart:
 def power_operating_space(
     p_always_on: float = 1e-8, p_active: float = 1e-6
 ) -> alt.VConcatChart:
-    """Generate a chart depicting sensor power operating space, based on supplied specs.
+    """Generate a visual depicting energy harvesting sensor power operating space,
+    with highlighted energy harvesting zone definitions.
 
     Args:
-        p_always_on: sensor always-on power, in watts
-        p_active: active power of sensor mode, in watts
+        p_always_on: Sensor always-on power, in watts
+        p_active: Active power of sensor mode, in watts
 
     Returns:
-        Chart as altair VConcatChart
+        Altair VConcatChart
     """
-
     chart_size = 400
 
     min_power = 10 ** (MIN_POWER_EXP)

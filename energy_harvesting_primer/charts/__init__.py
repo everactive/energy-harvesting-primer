@@ -1,3 +1,5 @@
+"""energy_harvesting_primer.charts"""
+
 import energy_harvesting_primer.charts.color as color
 
 from .energy_harvesting_process import energy_harvesting_process
