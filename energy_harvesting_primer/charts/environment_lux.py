@@ -1,3 +1,5 @@
+"""Contains methods to generate visuals depicting indoor and outdoor lux levels."""
+
 import altair as alt
 import pandas as pd
 
@@ -72,8 +74,8 @@ OUTDOOR_LUX_LEVELS = [
 
 
 def environment_lux_outside() -> alt.LayerChart:
-    """Generate a chart of the range of lux available in outdoor settings and return as
-    Altair chart."""
+    """Generate a visual of the range of lux levels available in typical outdoor
+    settings and return as an Altair chart."""
 
     circle_size = 900
 
@@ -208,8 +210,8 @@ INDOOR_LUX_LEVELS = [
 
 
 def environment_lux_inside() -> alt.LayerChart:
-    """Generate a chart of the range of lux available in outdoor settings and return as
-    Altair chart."""
+    """Generate a visual of the range of lux levels available in typical indoor settings
+    and return as an Altair chart."""
 
     df_indoor_lux = pd.DataFrame(INDOOR_LUX_LEVELS)
     df_indoor_lux["category"] = pd.Categorical(
