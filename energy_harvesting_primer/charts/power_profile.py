@@ -1,3 +1,6 @@
+"""Contains method to generate a visual depicting the power profile for a simplified
+sensor with two modes: active and idle."""
+
 from typing import Tuple
 
 import altair as alt
@@ -22,7 +25,7 @@ def power_profile(
     active_operation_seconds: int,
     active_operation_frequency: int,
 ) -> Tuple[alt.LayerChart, float, float]:
-    """Generate chart depicting the power profile for a sensor with two modes: active
+    """Generate visual depicting the power profile for a sensor with two modes: active
     and idle.
 
     Args:

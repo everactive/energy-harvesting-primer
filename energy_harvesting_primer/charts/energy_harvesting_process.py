@@ -1,3 +1,5 @@
+"""Contains method to generate a visual of the fundamental energy harvesting process."""
+
 import altair as alt
 import pandas as pd
 
@@ -10,8 +12,12 @@ color = palette.ColorPalette()
 
 
 def energy_harvesting_process() -> alt.LayerChart:
-    """Generate a diagram of the fundamental energy harvesting process: harvest energy,
-    store energy, consume energy and return as an Altair chart."""
+    """Generate a diagram of the fundamental energy harvesting process and return as
+    an Altair chart.
+
+    Diagram depicts the process of the sensor harvesting energy, storing energy, and
+    using stored energy.
+    """
 
     block_width = 20
     block_height = 20
