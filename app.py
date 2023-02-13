@@ -30,7 +30,11 @@ sensor_profile = eh.sensor_profiles.EveractiveEnvironmentalPlusEversensor()
 
 
 ## Sidebar ##########################################################
-st.sidebar.image(f"{IMAGE_DIR}/everactive_logo.png")
+everactive_logo_linked = eh.utils.get_linked_image(
+    f"{IMAGE_DIR}/everactive_logo.png", "https://everactive.com/", 333
+)
+st.sidebar.markdown(everactive_logo_linked, unsafe_allow_html=True)
+
 st.sidebar.title(f"Energy Harvesting Sensors 101")
 
 sidebar_links = [
@@ -771,21 +775,50 @@ st.markdown("---")
 st.header("Continue the Exploration")
 
 st.markdown(
-    """If this primer has piqued your interest and aided your understanding of energy
-harvesting sensors and systems, head over to [everactive.com](https://everactive.com/)
-to learn more about how you can adopt Everactive Edge technology to power your own
-solutions."""
+    f"""If this primer has piqued your interest and aided your understanding of energy
+harvesting sensors and systems, we encourage you to engage further and join our
+Everactive community!"""
 )
 
-st.markdown(
-    "* [Our Batteryless Technology](https://everactive.com/batteryless-technology/)"
-)
-st.markdown(
-    "* [Real-World, Industrial IoT Solutions Using Our Technology](https://everactive.com/applications/)"
-)
-st.markdown(
-    "* [How You Can Start Developing with Everactive Edge](https://everactive.com/self-powered-iot-developers/)"
-)
+st.markdown("")
+
+community_links = [
+    {
+        "image_file": "hackster.png",
+        "url": "https://www.hackster.io/everactive",
+        "text": "Check out our latest Eversensor hardware projects and experiments on **Hackster**.",
+    },
+    {
+        "image_file": "youtube.png",
+        "url": "https://www.youtube.com/@EveractiveInc/videos",
+        "text": "Follow our videos on **Youtube** to learn more about Everactive, our technology, and our products.",
+    },
+    {
+        "image_file": "slack.png",
+        "url": "https://everactive.com/join-slack",
+        "text": "Join our **Slack** workspace to interact with Everactive employees and your fellow Everactive Edge developers.",
+    },
+    {
+        "image_file": "github.png",
+        "url": "https://everactive.github.io",
+        "text": "Our **GitHub** has a variety of Everactive API client libraries to get you up and running with your Everactive data.",
+    },
+    {
+        "image_file": "everactive.png",
+        "url": "https://support.everactive.com/hc/en-us",
+        "text": "Visit our **Knowledge Base** on Everactive Support to find answers to common questions on using our products and technology.",
+    },
+]
+
+for link in community_links:
+    logo_column, text_column = st.columns([1, 2])
+
+    image_html = eh.utils.get_linked_image(
+        f"{IMAGE_DIR}/community_logos/{link['image_file']}", link["url"], 220
+    )
+    logo_column.markdown(image_html, unsafe_allow_html=True)
+    text_column.markdown(link["text"])
+    st.markdown(f"")
 
 st.markdown(
     """Stay tuned for further additions to Everactive's Energy Harvesting Sensors &
