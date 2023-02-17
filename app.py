@@ -118,7 +118,7 @@ later time."""
 )
 
 energy_harvesting_process_chart = eh.charts.energy_harvesting_process()
-st.altair_chart(energy_harvesting_process_chart)
+st.altair_chart(energy_harvesting_process_chart, theme=None)
 
 st.markdown(
     """A sensor exists in one of two states: **available**, in which it has sufficient
@@ -250,7 +250,7 @@ typical lux levels across a range of outdoor conditions.$^{1}$"""
 st.markdown("")
 
 outdoor_lux_chart = eh.charts.environment_lux_outside()
-st.altair_chart(outdoor_lux_chart)
+st.altair_chart(outdoor_lux_chart, theme=None)
 
 st.markdown(
     """In indoor settings$^{2}$, environmental lux levels are driven primarily by
@@ -262,7 +262,7 @@ spaces.$^{3}$"""
 st.markdown("")
 
 indoor_lux_chart = eh.charts.environment_lux_inside()
-st.altair_chart(indoor_lux_chart)
+st.altair_chart(indoor_lux_chart, theme=None)
 
 st.markdown(
     """The most reliable way to determine the intensity of ambient light in a given
@@ -412,7 +412,7 @@ col1, col2, _ = st.columns([1, 2, 5])
 col1.metric("Duty Cycle", round(duty_cycle, 2))
 col2.metric("Average Load Power", f"{round(average_load_power)} {eh.utils.MU}W")
 
-st.altair_chart(power_profile_chart)
+st.altair_chart(power_profile_chart, theme=None)
 
 st.markdown("")
 st.markdown(
@@ -467,7 +467,7 @@ st.caption(caption_text)
 example_load_power_vs_harvested_power_chart = (
     eh.charts.example_load_power_vs_harvested_power()
 )
-st.altair_chart(example_load_power_vs_harvested_power_chart)
+st.altair_chart(example_load_power_vs_harvested_power_chart, theme=None)
 
 st.markdown(
     """Next, consider the modes of the theoretical sensor. In addition to its always-on
@@ -497,7 +497,7 @@ on the mode name in the legend to isolate its power curve on the chart."""
 )
 
 example_power_modes_chart = eh.charts.example_power_modes()
-st.altair_chart(example_power_modes_chart)
+st.altair_chart(example_power_modes_chart, theme=None)
 
 
 st.markdown(
@@ -639,7 +639,6 @@ col1.selectbox(
 col2.selectbox(
     "Sensor Mode of Operation: Active Power",
     options=st.session_state.active_power_options,
-    index=st.session_state.active_power_idx,
     key="active_power_label",
     on_change=update_sensor_active_power,
 )
@@ -647,7 +646,7 @@ col2.selectbox(
 power_operating_space_chart = eh.charts.power_operating_space(
     st.session_state.p_always_on, st.session_state.p_active
 )
-st.altair_chart(power_operating_space_chart)
+st.altair_chart(power_operating_space_chart, theme=None)
 
 st.markdown(
     """Once the required harvested power is known for the three zones, given
@@ -767,7 +766,7 @@ harvestable_lux = int(re.search(r"(\d+) lux", selected_lux).group(1))
 runtime_variable_lux_chart = eh.charts.runtime_variable_lux(
     sensor_profile, harvestable_lux
 )
-st.altair_chart(runtime_variable_lux_chart)
+st.altair_chart(runtime_variable_lux_chart, theme=None)
 
 
 ## Introduction #####################################################
