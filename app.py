@@ -639,7 +639,6 @@ col1.selectbox(
 col2.selectbox(
     "Sensor Mode of Operation: Active Power",
     options=st.session_state.active_power_options,
-    index=st.session_state.active_power_idx,
     key="active_power_label",
     on_change=update_sensor_active_power,
 )
